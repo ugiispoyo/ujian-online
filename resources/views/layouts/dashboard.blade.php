@@ -11,11 +11,11 @@
 
 <body class="bg-gray-100 font-sans antialiased">
 
-    <div class="flex h-screen">
+    <div class="flex h-screen relative">
         <!-- Sidebar -->
-        <aside class="w-64 bg-gray-800 text-white shadow-md min-h-screen">
+        <aside class=" bg-gray-800 text-white shadow-md min-h-screen h-full w-full max-w-[20%]">
             <div class="p-6">
-                <h2 class="text-2xl font-semibold">My App</h2>
+                <h2 class="text-2xl font-semibold">Dashboard</h2>
                 <ul class="mt-6 space-y-2">
                     @if (auth()->guard('admin')->check())
                         <!-- Menu untuk Admin -->
@@ -51,13 +51,19 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
+        <div class="flex-1 flex flex-col w-full">
             <!-- Navbar -->
             <nav class="bg-white shadow p-4">
-                <div class="container mx-auto flex justify-between items-center">
-                    <h1 class="text-lg font-bold">Dashboard</h1>
+                <div class="container mx-auto flex justify-end items-center">
                     <div class="flex items-center space-x-4">
-                        <span class="text-gray-900 font-bold">{{ auth()->user()->name }}</span>
+
+                        @if (auth()->guard('admin')->check())
+                            <span class="text-gray-900 font-bold">{{ auth()->user()->name }}</span>
+                        @elseif (auth()->check())
+                            <a href="{{ route('edit-profile') }}" class="flex items-center px-4 py-2 rounded-lg">
+                                <span class="text-gray-800 font-bold">{{ auth()->user()->name }}</span>
+                            </a>
+                        @endif
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <button type="submit" class="text-gray-800 px-4 py-2 rounded-lg">Logout</button>
@@ -67,7 +73,7 @@
             </nav>
 
             <!-- Page Content -->
-            <main class="p-6 flex-1">
+            <main class="p-6 flex-1 overflow-auto">
                 @yield('content')
             </main>
         </div>

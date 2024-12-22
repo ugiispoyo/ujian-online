@@ -18,6 +18,9 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('dashboard');
     });
 
+    Route::get('/edit-profile', [\App\Http\Controllers\SiswaController::class, 'edit'])->name('edit-profile');
+    Route::post('/edit-profile', [\App\Http\Controllers\SiswaController::class, 'update'])->name('update-profile');
+
     // Dashboard siswa
     Route::get('/dashboard', function () {
         return view('dashboard.dashboard');
