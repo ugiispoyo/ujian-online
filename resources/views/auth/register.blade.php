@@ -1,70 +1,104 @@
 @extends('layouts.app')
 
-@section('title', 'Register')
-
 @section('content')
-<div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-    <h2 class="text-2xl font-bold mb-6 text-center">Register</h2>
-    <form method="POST" action="/api/register" class="space-y-4">
-        @csrf
-        <div>
-            <label for="name" class="block text-sm font-medium">Nama</label>
-            <input type="text" id="name" name="name" placeholder="Nama Lengkap"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-        </div>
-        <div>
-            <label for="nik" class="block text-sm font-medium">NIK</label>
-            <input type="text" id="nik" name="nik" placeholder="Nomor Induk Kependudukan"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-        </div>
-        <div>
-            <label for="jenis_kelamin" class="block text-sm font-medium">Jenis Kelamin</label>
-            <select id="jenis_kelamin" name="jenis_kelamin"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                <option value="Laki-laki">Laki-laki</option>
-                <option value="Perempuan">Perempuan</option>
-            </select>
-        </div>
-        <div>
-            <label for="tanggal_lahir" class="block text-sm font-medium">Tanggal Lahir</label>
-            <input type="date" id="tanggal_lahir" name="tanggal_lahir"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-        </div>
-        <div>
-            <label for="alamat" class="block text-sm font-medium">Alamat</label>
-            <textarea id="alamat" name="alamat" rows="3" placeholder="Alamat"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
-        </div>
-        <div>
-            <label for="sekolah" class="block text-sm font-medium">Sekolah</label>
-            <input type="text" id="sekolah" name="sekolah" placeholder="Nama Sekolah"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-        </div>
-        <div>
-            <label for="kelas" class="block text-sm font-medium">Kelas</label>
-            <input type="text" id="kelas" name="kelas" placeholder="Kelas"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-        </div>
-        <div>
-            <label for="email" class="block text-sm font-medium">Email</label>
-            <input type="email" id="email" name="email" placeholder="Email"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-        </div>
-        <div>
-            <label for="password" class="block text-sm font-medium">Password</label>
-            <input type="password" id="password" name="password" placeholder="Password"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-        </div>
-        <div>
-            <label for="password_confirmation" class="block text-sm font-medium">Konfirmasi Password</label>
-            <input type="password" id="password_confirmation" name="password_confirmation"
-                placeholder="Konfirmasi Password"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-        </div>
-        <button type="submit"
-            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-            Register
-        </button>
-    </form>
-</div>
+    <div class="max-w-md w-full mx-auto bg-white p-8 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold text-center mb-6">Register</h2>
+
+        @if ($errors->any())
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form action="{{ url('/register') }}" method="POST" class="space-y-5">
+            @csrf
+            <div>
+                <label for="nama" class="block mb-2 text-sm font-medium text-gray-700">Nama</label>
+                <input type="text" name="nama" id="nama" value="{{ old('nama') }}" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
+                @error('nama')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
+                <label for="nik" class="block mb-2 text-sm font-medium text-gray-700">NIK</label>
+                <input type="text" name="nik" id="nik" value="{{ old('nik') }}" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
+                @error('nik')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
+                <label for="jenis_kelamin" class="block mb-2 text-sm font-medium text-gray-700">Jenis Kelamin</label>
+                <select name="jenis_kelamin" id="jenis_kelamin" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
+                    <option value="Laki-laki" {{ old('jenis_kelamin') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                    <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                </select>
+                @error('jenis_kelamin')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
+                <label for="tanggal_lahir" class="block mb-2 text-sm font-medium text-gray-700">Tanggal Lahir</label>
+                <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir') }}" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
+                @error('tanggal_lahir')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
+                <label for="alamat" class="block mb-2 text-sm font-medium text-gray-700">Alamat</label>
+                <textarea name="alamat" id="alamat" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">{{ old('alamat') }}</textarea>
+                @error('alamat')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
+                <label for="sekolah" class="block mb-2 text-sm font-medium text-gray-700">Sekolah</label>
+                <input type="text" name="sekolah" id="sekolah" value="{{ old('sekolah') }}" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
+                @error('sekolah')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
+                <label for="kelas" class="block mb-2 text-sm font-medium text-gray-700">Kelas</label>
+                <input type="text" name="kelas" id="kelas" value="{{ old('kelas') }}" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
+                @error('kelas')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
+                <label for="email" class="block mb-2 text-sm font-medium text-gray-700">Email</label>
+                <input type="email" name="email" id="email" value="{{ old('email') }}" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
+                @error('email')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
+                <label for="password" class="block mb-2 text-sm font-medium text-gray-700">Password</label>
+                <input type="password" name="password" id="password" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
+                @error('password')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
+                <label for="password_confirmation" class="block mb-2 text-sm font-medium text-gray-700">Konfirmasi
+                    Password</label>
+                <input type="password" name="password_confirmation" id="password_confirmation" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
+            </div>
+            <button type="submit"
+                class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-3 text-center">Daftar</button>
+        </form>
+    </div>
 @endsection

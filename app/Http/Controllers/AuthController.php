@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,42 +11,56 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:8|confirmed',
-            'nik' => 'required|numeric|unique:users',
+        $validatedData = $request->validate([
+            'nama' => 'required|string|max:255',
+            'nik' => 'required|numeric|unique:users,nik',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'tanggal_lahir' => 'required|date',
             'alamat' => 'required|string',
             'sekolah' => 'required|string',
             'kelas' => 'required|string',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
         ]);
 
         User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'nik' => $request->nik,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'tanggal_lahir' => $request->tanggal_lahir,
-            'alamat' => $request->alamat,
-            'sekolah' => $request->sekolah,
-            'kelas' => $request->kelas,
+            'name' => $validatedData['nama'],
+            'nik' => $validatedData['nik'],
+            'jenis_kelamin' => $validatedData['jenis_kelamin'],
+            'tanggal_lahir' => $validatedData['tanggal_lahir'],
+            'alamat' => $validatedData['alamat'],
+            'sekolah' => $validatedData['sekolah'],
+            'kelas' => $validatedData['kelas'],
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['password']),
         ]);
 
-        return response()->json(['message' => 'User registered successfully']);
+        return redirect('/login')->with('success', 'Registrasi berhasil! Silakan login.');
     }
 
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
         if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            return response()->json(['user' => $user, 'message' => 'Login successful']);
+            $request->session()->regenerate();
+            return redirect()->route('dashboard')->with('success', 'Login berhasil!');
         }
 
-        return response()->json(['message' => 'Invalid credentials'], 401);
+        return back()->withErrors([
+            'email' => 'Email atau password salah.',
+        ])->onlyInput('email');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login')->with('success', 'Logout berhasil.');
     }
 }
