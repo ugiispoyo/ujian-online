@@ -17,18 +17,35 @@
             <div class="p-6">
                 <h2 class="text-2xl font-semibold">My App</h2>
                 <ul class="mt-6 space-y-2">
-                    <li>
-                        <a href="{{ route('dashboard') }}"
-                            class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
-                            Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('daftar-lomba') }}"
-                            class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
-                            Daftar Lomba
-                        </a>
-                    </li>
+                    @if (auth()->guard('admin')->check())
+                        <!-- Menu untuk Admin -->
+                        <li>
+                            <a href="{{ route('dashboard-admin') }}"
+                                class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                                Dashboard Admin
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('list-lomba') }}"
+                                class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                                List Lomba
+                            </a>
+                        </li>
+                    @elseif (auth()->check())
+                        <!-- Menu untuk Siswa -->
+                        <li>
+                            <a href="{{ route('dashboard') }}"
+                                class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                                Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('daftar-lomba') }}"
+                                class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                                Daftar Lomba
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </div>
         </aside>
@@ -43,8 +60,7 @@
                         <span class="text-gray-900 font-bold">{{ auth()->user()->name }}</span>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
-                            <button type="submit"
-                                class="text-gray-800 px-4 py-2 rounded-lg">Logout</button>
+                            <button type="submit" class="text-gray-800 px-4 py-2 rounded-lg">Logout</button>
                         </form>
                     </div>
                 </div>
