@@ -29,9 +29,7 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 
     // Halaman daftar lomba untuk siswa
-    Route::get('/daftar-lomba', function () {
-        return view('dashboard.daftar-lomba');
-    })->name('daftar-lomba');
+    Route::get('/daftar-lomba', [\App\Http\Controllers\LombaSiswaController::class, 'index'])->name('daftar-lomba');
 });
 
 // Proteksi untuk admin
