@@ -26,6 +26,7 @@ class LombaController extends Controller
             'deskripsi' => 'required|string',
             'gambar' => 'nullable|image|max:2048',
             'waktu_lomba' => 'required|date',
+            'harga_pendaftaran' => 'required|numeric|min:0',
         ]);
 
         if ($request->hasFile('gambar')) {
@@ -52,6 +53,7 @@ class LombaController extends Controller
             'deskripsi' => 'required|string',
             'gambar' => 'nullable|image|max:2048',
             'waktu_lomba' => 'required|date',
+            'harga_pendaftaran' => 'required|numeric|min:0',
         ]);
 
         if ($request->hasFile('gambar')) {

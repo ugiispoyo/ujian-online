@@ -22,6 +22,7 @@
                         <th scope="col" class="px-6 py-3">Nama Lomba</th>
                         <th scope="col" class="px-6 py-3">Deskripsi</th>
                         <th scope="col" class="px-6 py-3">Waktu Lomba</th>
+                        <th scope="col" class="px-6 py-3">Harga Pendaftaran</th>
                         <th scope="col" class="px-6 py-3">Aksi</th>
                     </tr>
                 </thead>
@@ -32,6 +33,7 @@
                             <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ $lomba->nama_lomba }}</td>
                             <td class="px-6 py-4">{{ Str::limit($lomba->deskripsi, 50) }}</td>
                             <td class="px-6 py-4">{{ $lomba->waktu_lomba }}</td>
+                            <td class="px-6 py-4">{{ number_format($lomba->harga_pendaftaran, 2) }}</td>
                             <td class="px-6 py-4">
                                 <a href="{{ route('admin.lomba.edit', $lomba->id) }}"
                                     class="text-blue-500 hover:underline">Edit</a>

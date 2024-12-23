@@ -11,7 +11,7 @@ class Lomba extends Model
     use HasFactory;
 
     protected $table = 'lomba';
-    
+
     protected $keyType = 'string';
     public $incrementing = false;
 
@@ -21,6 +21,7 @@ class Lomba extends Model
         'deskripsi',
         'gambar',
         'waktu_lomba',
+        'harga_pendaftaran',
     ];
 
     protected static function boot()
