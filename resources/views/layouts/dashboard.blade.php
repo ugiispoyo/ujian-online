@@ -26,7 +26,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('list-lomba') }}"
+                            <a href="{{ route('admin.lomba') }}"
                                 class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
                                 List Lomba
                             </a>
@@ -80,5 +80,27 @@
     </div>
 
 </body>
+
+<script>
+    // Hilangkan alert sukses setelah 5 detik
+    setTimeout(() => {
+        const successAlert = document.getElementById('success-alert');
+        if (successAlert) {
+            successAlert.style.transition = 'opacity 0.5s ease';
+            successAlert.style.opacity = '0';
+            setTimeout(() => successAlert.remove(), 500); // Hapus elemen setelah animasi selesai
+        }
+    }, 5000);
+
+    // Hilangkan alert error setelah 5 detik
+    setTimeout(() => {
+        const errorAlert = document.getElementById('error-alert');
+        if (errorAlert) {
+            errorAlert.style.transition = 'opacity 0.5s ease';
+            errorAlert.style.opacity = '0';
+            setTimeout(() => errorAlert.remove(), 500); // Hapus elemen setelah animasi selesai
+        }
+    }, 5000);
+</script>
 
 </html>

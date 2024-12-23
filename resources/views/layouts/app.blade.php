@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'Laravel App' }}</title>
+    <title>{{ $title ?? 'Ujian Online App' }}</title>
     @vite('resources/css/app.css')
 </head>
 
@@ -12,7 +12,7 @@
     <!-- Navbar -->
     <nav class="bg-white border-gray-200 px-4 py-2.5">
         <div class="container flex flex-wrap items-center justify-between mx-auto">
-            <a href="#" class="flex items-center">
+            <a href="/" class="flex items-center">
                 <span class="self-center text-xl font-semibold whitespace-nowrap">Ujian Online</span>
             </a>
             <div class="flex md:order-2">
