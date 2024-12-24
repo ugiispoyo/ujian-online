@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @section('content')
-    <div class="p-6 bg-white rounded-lg shadow-md w-full max-w-lg mx-auto">
+    <div class="p-6 bg-white rounded-lg shadow-md w-full md:max-w-lg mx-auto">
         <!-- Informasi Lomba -->
         <div class="mb-6 w-full">
             <h2 class="text-3xl font-bold mb-2">{{ $lomba->nama_lomba }}</h2>

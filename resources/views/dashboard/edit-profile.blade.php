@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @section('content')
-    <div class="bg-white p-6 rounded-lg shadow-mdw w-full max-w-lg mx-auto">
+    <div class="bg-white p-6 rounded-lg shadow-mdw w-full md:max-w-lg mx-auto">
         <h2 class="text-2xl font-bold mb-4">Edit Data Diri</h2>
 
         <!-- Pesan Sukses -->

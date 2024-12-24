@@ -13,7 +13,7 @@
 
     <div class="flex h-screen relative">
         <!-- Sidebar -->
-        <aside class=" bg-gray-800 text-white shadow-md min-h-screen h-full w-full max-w-[20%]">
+        <aside class="bg-gray-800 text-white shadow-md min-h-screen h-full w-full max-w-[20%]">
             <div class="p-6">
                 <h2 class="text-2xl font-semibold">Dashboard</h2>
                 <ul class="mt-6 space-y-2">
@@ -67,19 +67,39 @@
             <!-- Navbar -->
             <nav class="bg-white shadow p-4">
                 <div class="container mx-auto flex justify-end items-center">
-                    <div class="flex items-center space-x-4">
-
-                        @if (auth()->guard('admin')->check())
-                            <span class="text-gray-900 font-bold">{{ auth()->user()->name }}</span>
-                        @elseif (auth()->check())
-                            <a href="{{ route('edit-profile') }}" class="flex items-center px-4 py-2 rounded-lg">
-                                <span class="text-gray-800 font-bold">{{ auth()->user()->name }}</span>
-                            </a>
-                        @endif
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="text-gray-800 px-4 py-2 rounded-lg">Logout</button>
-                        </form>
+                    <div class="relative">
+                        <button id="dropdownUserButton" data-dropdown-toggle="dropdownUser"
+                            class="text-gray-800 font-bold focus:outline-none">
+                            {{ auth()->user()->name }}
+                        </button>
+                        <div id="dropdownUser" class="hidden absolute right-0 z-10 w-44 bg-white rounded shadow dark:bg-gray-700">
+                            <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
+                                @if (auth()->guard('admin')->check())
+                                    <li>
+                                        <a href="{{ route('dashboard-admin') }}"
+                                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                            Dashboard
+                                        </a>
+                                    </li>
+                                @else
+                                    <li>
+                                        <a href="{{ route('edit-profile') }}"
+                                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                            Edit Profile
+                                        </a>
+                                    </li>
+                                @endif
+                                <li>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit"
+                                            class="w-full text-left block px-4 pt-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                            Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -113,6 +133,19 @@
             setTimeout(() => errorAlert.remove(), 500); // Hapus elemen setelah animasi selesai
         }
     }, 5000);
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const dropdownButton = document.getElementById("dropdownUserButton");
+        const dropdownMenu = document.getElementById("dropdownUser");
+
+        if (dropdownButton) {
+            dropdownButton.addEventListener("click", () => {
+                dropdownMenu.classList.toggle("hidden");
+            });
+        }
+    });
 </script>
 
 </html>
