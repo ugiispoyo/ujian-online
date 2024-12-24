@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 
 use App\Http\Controllers\LombaController;
 use App\Http\Controllers\PendaftaranLombaController;
+use App\Http\Controllers\SoalController;
 
 // Halaman login dan register (tanpa proteksi middleware)
 Route::view('/login', 'auth.login')->name('login');
@@ -53,4 +54,8 @@ Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
 
     Route::get('/admin/pendaftaran-lomba', [\App\Http\Controllers\PendaftaranLombaController::class, 'index'])->name('admin.pendaftaran-lomba.index');
     Route::post('/admin/pendaftaran-lomba/{id}/confirm', [\App\Http\Controllers\PendaftaranLombaController::class, 'confirm'])->name('admin.pendaftaran-lomba.confirm');
+
+    // CRUD soal
+    Route::get('/soal/create', [SoalController::class, 'create'])->name('admin.soal.create');
+    Route::post('/soal', [SoalController::class, 'store'])->name('admin.soal.store');
 });

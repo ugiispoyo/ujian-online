@@ -7,7 +7,7 @@
     },
     "devDependencies": {
         "autoprefixer": "^10.4.20",
-        "axios": "^1.7.4",
+        "axios": "^1.7.9",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^1.0",
         "postcss": "^8.4.49",
@@ -15,6 +15,10 @@
         "vite": "^5.0"
     },
     "dependencies": {
-        "flowbite": "^2.5.2"
+        "@vitejs/plugin-react": "^4.3.4",
+        "flowbite": "^2.5.2",
+        "flowbite-react": "^0.10.2",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
     }
 }
