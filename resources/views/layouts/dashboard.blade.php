@@ -31,6 +31,12 @@
                                 List Lomba
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('admin.pendaftaran-lomba.index') }}"
+                                class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                                Konfirmasi Pembayaran
+                            </a>
+                        </li>
                     @elseif (auth()->check())
                         <!-- Menu untuk Siswa -->
                         <li>
@@ -43,6 +49,12 @@
                             <a href="{{ route('daftar-lomba') }}"
                                 class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
                                 Daftar Lomba
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('status-pembayaran') }}"
+                                class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                                Status Pembayaran Lomba
                             </a>
                         </li>
                     @endif

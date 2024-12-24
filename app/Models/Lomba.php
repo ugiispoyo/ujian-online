@@ -33,4 +33,10 @@ class Lomba extends Model
             }
         });
     }
+
+    // Relasi dengan tabel pendaftaran_lomba
+    public function pendaftaran()
+    {
+        return $this->hasMany(PendaftaranLomba::class, 'id_lomba');
+    }
 }

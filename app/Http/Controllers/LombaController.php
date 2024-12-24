@@ -10,9 +10,10 @@ class LombaController extends Controller
 {
     public function index()
     {
-        $lomba = Lomba::all();
-        return view('dashboard.admin.lomba.index', compact('lomba'));
+        $lombas = Lomba::paginate(10); // Menampilkan 10 lomba per halaman
+        return view('dashboard.admin.lomba.index', compact('lombas'));
     }
+
 
     public function create()
     {

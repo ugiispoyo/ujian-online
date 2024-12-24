@@ -24,14 +24,23 @@
                         </p>
                         <p class="text-sm text-gray-500 mb-3">Biaya pendaftaran: Rp
                             {{ number_format($lomba->harga_pendaftaran, 2) }}</p>
-                        <a href="#"
-                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
-                            Daftar Sekarang
-                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3">
-                                </path>
-                            </svg>
+
+                        @php
+                            $waktuLomba = \Carbon\Carbon::parse($lomba->waktu_lomba);
+                            $now = \Carbon\Carbon::now();
+                            $isDisabled = $now->diffInHours($waktuLomba, false) < 3 && $now->lt($waktuLomba);
+                        @endphp
+
+                        <a href="{{ $isDisabled ? '#' : route('pendaftaran-lomba.create', $lomba->id) }}"
+                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-center {{ $isDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300' }} text-white rounded-lg">
+                            {{ $isDisabled ? 'Pendaftaran Ditutup' : 'Daftar Sekarang' }}
+                            @if (!$isDisabled)
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                                    </path>
+                                </svg>
+                            @endif
                         </a>
                     </div>
                 </div>

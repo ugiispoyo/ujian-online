@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
 use App\Http\Controllers\LombaController;
+use App\Http\Controllers\PendaftaranLombaController;
 
 // Halaman login dan register (tanpa proteksi middleware)
 Route::view('/login', 'auth.login')->name('login');
@@ -30,6 +31,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Halaman daftar lomba untuk siswa
     Route::get('/daftar-lomba', [\App\Http\Controllers\LombaSiswaController::class, 'index'])->name('daftar-lomba');
+    Route::get('/pendaftaran-lomba/{id}', [PendaftaranLombaController::class, 'create'])->name('pendaftaran-lomba.create');
+    Route::post('/pendaftaran-lomba', [PendaftaranLombaController::class, 'store'])->name('pendaftaran-lomba.store');
+    Route::get('/status-pembayaran', [\App\Http\Controllers\SiswaController::class, 'daftarPembayaran'])->name('status-pembayaran');
 });
 
 // Proteksi untuk admin
@@ -46,4 +50,7 @@ Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
     Route::get('/lomba/{id}/edit', [LombaController::class, 'edit'])->name('admin.lomba.edit');
     Route::put('/lomba/{id}', [LombaController::class, 'update'])->name('admin.lomba.update');
     Route::delete('/lomba/{id}', [LombaController::class, 'destroy'])->name('admin.lomba.destroy');
+
+    Route::get('/admin/pendaftaran-lomba', [\App\Http\Controllers\PendaftaranLombaController::class, 'index'])->name('admin.pendaftaran-lomba.index');
+    Route::post('/admin/pendaftaran-lomba/{id}/confirm', [\App\Http\Controllers\PendaftaranLombaController::class, 'confirm'])->name('admin.pendaftaran-lomba.confirm');
 });

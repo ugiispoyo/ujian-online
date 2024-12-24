@@ -6,24 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('nik')->unique();
-            $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan']);
-            $table->date('tanggal_lahir');
-            $table->text('alamat');
-            $table->string('sekolah');
-            $table->string('kelas');
+            $table->string('nik')->unique()->nullable(); // Jadikan nullable
+            $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan'])->nullable(); // Nullable
+            $table->date('tanggal_lahir')->nullable(); // Nullable
+            $table->text('alamat')->nullable(); // Nullable
+            $table->string('sekolah')->nullable(); // Nullable
+            $table->string('kelas')->nullable(); // Nullable
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {

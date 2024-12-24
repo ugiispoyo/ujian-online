@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\PendaftaranLomba;
+use Carbon\Carbon;
 
 class SiswaController extends Controller
 {
@@ -41,5 +43,17 @@ class SiswaController extends Controller
             // Kembalikan ke halaman edit dengan pesan error
             return back()->with('error', 'Terjadi kesalahan saat menyimpan data.');
         }
+    }
+
+    public function daftarPembayaran()
+    {
+        $pendaftaranLombas = PendaftaranLomba::with('lomba')
+            ->where('id_siswa', Auth::user()->id)
+            ->whereHas('lomba', function ($query) {
+                $query->where('waktu_lomba', '>', Carbon::now());
+            })
+            ->get();
+
+        return view('dashboard.status-pembayaran', compact('pendaftaranLombas'));
     }
 }
