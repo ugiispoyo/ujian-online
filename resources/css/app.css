@@ -1,4 +1,15 @@
 @import "flowbite";
+@import "quill/dist/quill.snow.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.ql-editor, 
+.ql-container {
+    min-height: 250px !important;
+    max-height: 400px !important;
+    overflow-y: scroll !important;
+  }
+  
