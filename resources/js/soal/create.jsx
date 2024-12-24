@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom/client";
 import axios from "axios";
-import { Button, TextInput, Select, Table, Pagination } from "flowbite-react";
-import { useQuill } from "react-quilljs";
+import { Button, Select, Table, Pagination } from "flowbite-react";
+import Quill from "quill";
 
 import "quill/dist/quill.snow.css";
 
@@ -21,82 +21,52 @@ const SoalForm = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
 
-    const theme = "snow";
-    const modules = {
-        toolbar: [
-            ["bold", "italic", "underline", "strike"],
-            [{ header: [1, 2, 3, 4, 5, 6, false] }],
-            [{ align: [] }],
-            [{ list: "ordered" }, { list: "bullet" }],
-            ["image", "link"],
-        ],
-    };
-    const placeholder = "Tulis pertanyaan di sini...";
-    const { quillRef, quill } = useQuill({ theme, modules, placeholder });
+    const pertanyaanRef = useRef(null);
+    const jawabanRefs = useRef([]); // Ref untuk menyimpan DOM container dari editor jawaban
+    const quillInstances = useRef([]); // Ref untuk menyimpan instance Quill
 
-    useEffect(() => {
-        if (quill) {
-            // if (data) {
-            // quill.root.innerHTML = data;
-            // }
-            quill.on("text-change", () => {
-                const htmlText = quill.root.innerHTML;
-                const textLength = quill.getLength();
-                if (textLength > 1) {
-                    setPertanyaan(htmlText);
-                }
-            });
-            const quillAdd = quill.getModule("toolbar");
-            quillAdd.addHandler("image", selectLocalImage);
-        }
-    }, [quill]);
+    const toolbarOptions = [
+        ["bold", "italic", "underline", "strike"],
+        [{ header: [1, 2, 3, 4, 5, 6, false] }],
+        [{ align: [] }],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["image", "link"],
+    ];
 
-    const insertImageToTextEditor = (url) => {
-        const range = quill.getSelection();
-        quill.insertEmbed(range.index, "image", url);
-    };
-
-    const selectLocalImage = () => {
-        const input = document.createElement("input");
-        input.setAttribute("type", "file");
-        input.setAttribute("accept", "image/*");
-        input.click();
-
-        input.onchange = () => {
-            const file = input?.files?.[0];
-            uploadDescriptionImage(file);
-        };
-    };
-
-    // Ambil id_lomba dari query parameter saat komponen dimount
+    // Ambil id_lomba dari query parameter
     useEffect(() => {
         const id = getQueryParam("id_lomba");
         setIdLomba(id);
         if (id) {
             fetchSoals(id);
-        } else {
-            console.error("ID Lomba tidak ditemukan dalam URL!");
         }
     }, []);
 
-    const fetchSoals = async (idLomba) => {
-        try {
-            const response = await axios.get(`/api/soal/${idLomba}`);
-            setSoals(response.data?.[0]?.soal || []); // Muat soal dari database
-        } catch (error) {
-            console.error(
-                "Gagal memuat soal:",
-                error.response?.data || error.message
-            );
-        }
-    };
+    // Inisialisasi Quill untuk editor pertanyaan
+    useEffect(() => {
+        const quill = new Quill(pertanyaanRef.current, {
+            theme: "snow",
+            modules: {
+                toolbar: toolbarOptions,
+            },
+        });
 
-    const uploadDescriptionImage = async (file) => {
+        quill.on("text-change", () => {
+            const html = quill.root.innerHTML;
+            setPertanyaan(html);
+        });
+
+        quill
+            .getModule("toolbar")
+            .addHandler("image", () => selectLocalImage(quill));
+    }, []);
+
+    // Fungsi upload gambar
+    const uploadImage = async (file, quill) => {
         try {
             const formData = new FormData();
             formData.append("file", file);
 
-            // Panggil API untuk upload gambar
             const response = await axios.post(
                 "/api/soal/upload-image",
                 formData,
@@ -107,37 +77,153 @@ const SoalForm = () => {
                 }
             );
 
-            // URL hasil upload
             const imageUrl = response.data.url;
-
-            // Sisipkan gambar ke editor
-            insertImageToTextEditor(imageUrl);
+            const range = quill.getSelection();
+            quill.insertEmbed(range.index, "image", imageUrl);
         } catch (error) {
-            console.error("Error upload foto editor ", error);
+            console.error("Error upload foto editor", error);
+        }
+    };
+
+    const selectLocalImage = (quill) => {
+        const input = document.createElement("input");
+        input.setAttribute("type", "file");
+        input.setAttribute("accept", "image/*");
+        input.click();
+
+        input.onchange = () => {
+            const file = input?.files?.[0];
+            if (file) {
+                uploadImage(file, quill);
+            }
+        };
+    };
+
+    // Inisialisasi Quill untuk setiap jawaban
+    useEffect(() => {
+        initializeJawabanEditors();
+    }, [jawaban]);
+
+    const fetchSoals = async (idLomba) => {
+        try {
+            const response = await axios.get(`/api/soal/${idLomba}`);
+            setSoals(response.data?.[0]?.soal || []);
+        } catch (error) {
+            console.error(
+                "Gagal memuat soal:",
+                error.response?.data || error.message
+            );
         }
     };
 
     const handleSubmit = async () => {
-        const soal = {
-            id: crypto.randomUUID(),
-            pertanyaan,
-            jawaban,
-            jawaban_yang_benar: jawabanBenar,
-        };
-
         try {
+            // Validasi Pertanyaan
+            const sanitizedPertanyaan =
+                typeof pertanyaan === "string" && pertanyaan.trim()
+                    ? pertanyaan.trim()
+                    : "";
+
+            // Validasi Jawaban
+            const sanitizedJawaban = jawaban.map((j) => {
+                if (typeof j === "string" && j.trim()) {
+                    return j.trim();
+                } else {
+                    return ""; // Ganti dengan string kosong jika nilai tidak valid
+                }
+            });
+
+            // Validasi apakah ada jawaban kosong
+            if (sanitizedJawaban.some((j) => j === "")) {
+                alert("Semua jawaban harus diisi!");
+                return;
+            }
+
+            // Validasi apakah jawaban benar valid
+            if (
+                typeof jawabanBenar === "undefined" ||
+                !sanitizedJawaban[jawabanBenar]
+            ) {
+                alert("Pilih jawaban benar yang valid!");
+                return;
+            }
+
+            // Siapkan data soal
+            const soal = {
+                id: crypto.randomUUID(),
+                pertanyaan: sanitizedPertanyaan,
+                jawaban: sanitizedJawaban,
+                jawaban_yang_benar: sanitizedJawaban[jawabanBenar],
+            };
+
+            // Simpan ke server
             await axios.post("/api/soal/store", {
                 id_lomba: idLomba,
                 soal,
             });
-            setSoals([...soals, soal]);
-            quill.root.innerHTML = ""; // Reset editor
-            setPertanyaan("");
-            setJawaban([""]);
-            setJawabanBenar("");
+
+            window.location.reload();
         } catch (error) {
-            console.error(error.response?.data || error.message);
+            console.error(
+                "Error saat menyimpan soal:",
+                error.response?.data || error.message
+            );
         }
+    };
+
+    const initializeJawabanEditors = () => {
+        jawaban.forEach((_, index) => {
+            if (!quillInstances.current[index]) {
+                const editorRef = jawabanRefs.current[index];
+                if (editorRef) {
+                    const quill = new Quill(editorRef, {
+                        theme: "snow",
+                        modules: {
+                            toolbar: toolbarOptions,
+                        },
+                    });
+
+                    quill.on("text-change", () => {
+                        const html = quill.root.innerHTML || ""; // Tambahkan validasi di sini
+                        const updatedJawaban = [...jawaban];
+                        updatedJawaban[index] = html;
+                        setJawaban(updatedJawaban);
+                    });
+
+                    quill
+                        .getModule("toolbar")
+                        .addHandler("image", () => selectLocalImage(quill));
+
+                    quillInstances.current[index] = quill;
+                }
+            }
+        });
+    };
+
+    const addJawaban = () => {
+        if (jawaban.length < 5) {
+            setJawaban([...jawaban, ""]);
+            jawabanRefs.current.push(null);
+            setTimeout(() => initializeJawabanEditors(), 0); // Pastikan editor diinisialisasi ulang
+        }
+    };
+
+    const removeJawaban = (index) => {
+        // Ambil instance Quill yang akan dihapus
+        const instance = quillInstances.current[index];
+        if (instance) {
+            // Hapus event listener dan DOM editor
+            instance.off("text-change");
+            instance.root.innerHTML = "";
+            instance.container.parentNode.removeChild(instance.container);
+        }
+
+        // Hapus item dari array Quill instances dan jawabanRefs
+        quillInstances.current.splice(index, 1);
+        jawabanRefs.current.splice(index, 1);
+
+        // Perbarui state jawaban
+        setJawaban((prevJawaban) => prevJawaban.filter((_, i) => i !== index));
     };
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -150,50 +236,42 @@ const SoalForm = () => {
 
             {/* Pertanyaan */}
             <div className="mb-4">
-                <label className="block mb-2 text-sm font-medium text-gray-700">
+                <label className="block mb-2 text-lg font-bold text-gray-700">
                     Pertanyaan
                 </label>
-                <div ref={quillRef} />
+                <div ref={pertanyaanRef} />
             </div>
 
             {/* Jawaban */}
             <div className="mb-4">
-                <label className="block mb-2 text-sm font-medium text-gray-700">
+                <label className="block mb-2 text-lg font-bold text-gray-700">
                     Jawaban
                 </label>
-                {jawaban.map((item, index) => (
-                    <div
-                        key={index}
-                        className="flex items-center space-x-4 mb-2"
-                    >
-                        <TextInput
-                            placeholder={`Jawaban ${index + 1}`}
-                            value={item}
-                            onChange={(e) =>
-                                setJawaban(
-                                    jawaban.map((j, i) =>
-                                        i === index ? e.target.value : j
-                                    )
-                                )
-                            }
-                        />
-                        <Button
-                            color="failure"
-                            onClick={() =>
-                                setJawaban(
-                                    jawaban.filter((_, i) => i !== index)
-                                )
-                            }
-                        >
-                            Hapus
-                        </Button>
+                {jawaban.map((_, index) => (
+                    <div key={index} className="mb-3 flex gap-2">
+                        <span>{String.fromCharCode(97 + index)}</span>
+                        <div className="w-full flex flex-col">
+                            <div
+                                ref={(ref) =>
+                                    (jawabanRefs.current[index] = ref)
+                                }
+                            />
+                            <div className="flex justify-end w-full">
+                                {index + 1 === jawaban.length && (
+                                    <Button
+                                        color="failure"
+                                        className="mt-2 max-w-[100px]"
+                                        onClick={() => removeJawaban(index)}
+                                    >
+                                        Hapus
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 ))}
                 {jawaban.length < 5 && (
-                    <Button
-                        color="teal"
-                        onClick={() => setJawaban([...jawaban, ""])}
-                    >
+                    <Button color="teal" onClick={addJawaban}>
                         Tambah Jawaban
                     </Button>
                 )}
@@ -207,21 +285,19 @@ const SoalForm = () => {
                 <Select
                     value={jawabanBenar}
                     onChange={(e) => setJawabanBenar(e.target.value)}
-                    required
                 >
                     <option value="" disabled>
                         Pilih jawaban benar
                     </option>
-                    {jawaban.map((item, index) => (
-                        <option key={index} value={item}>
-                            {item}
+                    {jawaban.map((_, index) => (
+                        <option key={index} value={index}>
+                            Jawaban {index + 1}
                         </option>
                     ))}
                 </Select>
             </div>
 
-            {/* Tombol Simpan */}
-            <Button onClick={handleSubmit} className="mt-4" color="success">
+            <Button onClick={handleSubmit} color="success">
                 Simpan Soal
             </Button>
 
@@ -230,7 +306,7 @@ const SoalForm = () => {
                 <h3 className="text-xl font-bold mb-4">Daftar Soal</h3>
                 {soals.length > 0 ? (
                     <div className="overflow-x-auto">
-                        <Table>
+                        <Table className="w-full overflow-x-auto">
                             <Table.Head>
                                 <Table.HeadCell>No</Table.HeadCell>
                                 <Table.HeadCell>Pertanyaan</Table.HeadCell>
@@ -244,7 +320,7 @@ const SoalForm = () => {
                                             {indexOfFirstItem + index + 1}
                                         </Table.Cell>
                                         <Table.Cell>
-                                            <div className="overflow-auto max-h-[150px]">
+                                            <div className="max-h-[150px] overflow-y-auto">
                                                 <div
                                                     dangerouslySetInnerHTML={{
                                                         __html: soal.pertanyaan,
@@ -253,31 +329,55 @@ const SoalForm = () => {
                                             </div>
                                         </Table.Cell>
                                         <Table.Cell>
-                                            <ul>
+                                            <div className="max-h-[150px] overflow-y-auto">
                                                 {soal.jawaban.map((item, i) => (
-                                                    <li key={i}>
-                                                        {String.fromCharCode(
-                                                            97 + i
-                                                        )}
-                                                        . {item}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </Table.Cell>
-                                        <Table.Cell>
-                                            {soal.jawaban.map((item, i) => (
-                                                <React.Fragment key={i}>
-                                                    {soal.jawaban_yang_benar ===
-                                                        item && (
+                                                    <div
+                                                        className="flex gap-2"
+                                                        key={i}
+                                                    >
                                                         <span>
                                                             {String.fromCharCode(
                                                                 97 + i
                                                             )}
-                                                            . {item}
+                                                            .
                                                         </span>
-                                                    )}
-                                                </React.Fragment>
-                                            ))}
+                                                        <div
+                                                            key={i}
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: item,
+                                                            }}
+                                                        ></div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </Table.Cell>
+                                        <Table.Cell>
+                                            <div className="max-h-[150px] overflow-y-auto">
+                                                {soal.jawaban.map((item, i) => (
+                                                    <React.Fragment key={i}>
+                                                        {soal.jawaban_yang_benar ===
+                                                            item && (
+                                                            <div
+                                                                className="flex gap-2"
+                                                                key={i}
+                                                            >
+                                                                <span>
+                                                                    {String.fromCharCode(
+                                                                        97 + i
+                                                                    )}
+                                                                    .
+                                                                </span>
+                                                                <div
+                                                                    key={i}
+                                                                    dangerouslySetInnerHTML={{
+                                                                        __html: item,
+                                                                    }}
+                                                                ></div>
+                                                            </div>
+                                                        )}
+                                                    </React.Fragment>
+                                                ))}
+                                            </div>
                                         </Table.Cell>
                                     </Table.Row>
                                 ))}

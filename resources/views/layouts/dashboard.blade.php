@@ -63,7 +63,7 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col w-full">
+        <div class="flex-1 flex flex-col  w-full max-w-[80%]">
             <!-- Navbar -->
             <nav class="bg-white shadow p-4">
                 <div class="container mx-auto flex justify-end items-center">
