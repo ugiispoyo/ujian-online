@@ -291,7 +291,7 @@ const SoalForm = () => {
                     </option>
                     {jawaban.map((_, index) => (
                         <option key={index} value={index}>
-                            Jawaban {index + 1}
+                            Jawabannya {String.fromCharCode(97 + index)}
                         </option>
                     ))}
                 </Select>
