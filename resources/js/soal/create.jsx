@@ -226,6 +226,28 @@ const SoalForm = () => {
         setJawaban((prevJawaban) => prevJawaban.filter((_, i) => i !== index));
     };
 
+    const handleDelete = async (id) => {
+        try {
+            if (window.confirm("Apakah Anda yakin ingin menghapus soal ini?")) {
+                const updatedSoals = soals.filter((soal) => soal.id !== id);
+                await saveSoal(updatedSoals);
+            }
+        } catch (error) {
+            console.error(
+                "Error saat menghapus soal:",
+                error.response?.data || error.message
+            );
+        }
+    };
+
+    const saveSoal = async (soal) => {
+        await axios.post("/api/soal/delete-soal", {
+            id_lomba: idLomba,
+            soal,
+        });
+        window.location.reload();
+    };
+
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentSoals = soals.slice(indexOfFirstItem, indexOfLastItem);
@@ -312,6 +334,7 @@ const SoalForm = () => {
                                 <Table.HeadCell>Pertanyaan</Table.HeadCell>
                                 <Table.HeadCell>Jawaban</Table.HeadCell>
                                 <Table.HeadCell>Jawaban Benar</Table.HeadCell>
+                                <Table.HeadCell>Aksi</Table.HeadCell>
                             </Table.Head>
                             <Table.Body>
                                 {currentSoals.map((soal, index) => (
@@ -378,6 +401,16 @@ const SoalForm = () => {
                                                     </React.Fragment>
                                                 ))}
                                             </div>
+                                        </Table.Cell>
+                                        <Table.Cell>
+                                            <span
+                                                className="text-red-500 cursor-pointer"
+                                                onClick={() =>
+                                                    handleDelete(soal.id)
+                                                }
+                                            >
+                                                Hapus
+                                            </span>
                                         </Table.Cell>
                                     </Table.Row>
                                 ))}

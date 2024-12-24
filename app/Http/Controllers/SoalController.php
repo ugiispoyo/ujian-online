@@ -45,6 +45,27 @@ class SoalController extends Controller
         return response()->json(['message' => 'Soal berhasil disimpan.'], 201);
     }
 
+    public function deleteSoal(Request $request)
+    {
+        $validated = $request->validate([
+            'id_lomba' => 'required|exists:lomba,id',
+            'soal' => 'array',
+        ]);
+
+        // Cari soal berdasarkan id_lomba
+        $existingSoal = Soal::where('id_lomba', $validated['id_lomba'])->first();
+
+        if ($existingSoal) {
+
+            // Update kolom soal dengan data yang diperbarui
+            $existingSoal->update([
+                'soal' => $validated['soal'],
+            ]);
+        }
+
+        return response()->json(['message' => 'Soal berhasil disimpan.'], 201);
+    }
+
 
     public function getByLomba($id_lomba)
     {
