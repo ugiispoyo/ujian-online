@@ -58,4 +58,6 @@ Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
     // CRUD soal
     Route::get('/soal/create', [SoalController::class, 'create'])->name('admin.soal.create');
     Route::post('/soal', [SoalController::class, 'store'])->name('admin.soal.store');
+    Route::get('/soal', [SoalController::class, 'index'])->name('admin.soal.index');
+    Route::get('/soal/edit', [SoalController::class, 'edit'])->name('admin.soal.edit');
 });

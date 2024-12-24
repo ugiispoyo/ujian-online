@@ -11,8 +11,41 @@ class SoalController extends Controller
 {
     public function create()
     {
-        $lombas = Lomba::all();
-        return view('dashboard.admin.soal.create', compact('lombas'));
+        // Ambil semua lomba
+        $allLombas = Lomba::all();
+
+        // Filter lomba yang belum memiliki soal
+        $lombasWithoutSoal = $allLombas->filter(function ($lomba) {
+            return !\App\Models\Soal::where('id_lomba', $lomba->id)->exists();
+        });
+
+        // Kirim data yang sudah difilter ke view
+        return view('dashboard.admin.soal.create', [
+            'lombas' => $lombasWithoutSoal
+        ]);
+    }
+
+    public function edit(Request $request)
+    {
+        // Ambil id_lomba dari query parameter
+        $id_lomba = $request->query('id_lomba');
+
+        // Validasi apakah id_lomba ada
+        if (!$id_lomba) {
+            abort(404, 'Parameter id_lomba tidak ditemukan.');
+        }
+
+        // Cari data lomba berdasarkan id
+        $lomba = Lomba::findOrFail($id_lomba);
+
+        return view('dashboard.admin.soal.edit', compact('lomba'));
+    }
+
+
+    public function index()
+    {
+        $soals = Soal::with('lomba')->paginate(10); // Relasi dengan tabel lomba
+        return view('dashboard.admin.soal.index', compact('soals'));
     }
 
     public function store(Request $request)

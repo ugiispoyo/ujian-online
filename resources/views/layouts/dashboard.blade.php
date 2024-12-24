@@ -37,6 +37,12 @@
                                 Konfirmasi Pembayaran
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('admin.soal.index') }}"
+                                class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                                Soal
+                            </a>
+                        </li>
                     @elseif (auth()->check())
                         <!-- Menu untuk Siswa -->
                         <li>
@@ -72,7 +78,8 @@
                             class="text-gray-800 font-bold focus:outline-none">
                             {{ auth()->user()->name }}
                         </button>
-                        <div id="dropdownUser" class="hidden absolute right-0 z-10 w-44 bg-white rounded shadow dark:bg-gray-700">
+                        <div id="dropdownUser"
+                            class="hidden absolute right-0 z-10 w-44 bg-white rounded shadow dark:bg-gray-700">
                             <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
                                 @if (auth()->guard('admin')->check())
                                     <li>
