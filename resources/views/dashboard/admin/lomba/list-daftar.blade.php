@@ -105,7 +105,7 @@
 
     <!-- Modal View Gambar -->
     <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="relative bg-white rounded-lg shadow-md p-7 w-full max-w-3xl">
+        <div class="relative bg-white rounded-lg shadow-md p-7 w-full max-w-3xl max-h-[80%] overflow-auto">
             <!-- Tombol Close -->
             <button onclick="hideImageModal()"
                 class="absolute top-[2px] right-2 text-gray-600 hover:text-gray-900 focus:outline-none text-2xl">
