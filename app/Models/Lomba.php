@@ -22,6 +22,7 @@ class Lomba extends Model
         'gambar',
         'waktu_lomba',
         'harga_pendaftaran',
+        'status',
     ];
 
     protected static function boot()

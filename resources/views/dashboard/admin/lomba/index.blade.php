@@ -23,6 +23,7 @@
                         <th scope="col" class="px-6 py-3">Deskripsi</th>
                         <th scope="col" class="px-6 py-3">Waktu Lomba</th>
                         <th scope="col" class="px-6 py-3">Harga Pendaftaran</th>
+                        <th scope="col" class="px-6 py-3">Status</th>
                         <th scope="col" class="px-6 py-3">Aksi</th>
                     </tr>
                 </thead>
@@ -43,12 +44,21 @@
                                 {{ $waktuLomba->locale('id')->translatedFormat('l, d F Y H:i') }}
                             </td>
                             <td class="px-6 py-4">Rp {{ number_format($lomba->harga_pendaftaran, 2) }}</td>
+                            <td>
+                                @if ($lomba->status === 'not_started')
+                                    <span class="text-yellow-400">Belum Mulai</span>
+                                @elseif ($lomba->status === 'in_progress')
+                                    <span class="text-green-500-400">Sedang Berlangsung</span>
+                                @else
+                                    Sudah Selesai
+                                @endif
+                            </td>
                             <td class="px-6 py-4">
                                 <a href="{{ route('admin.lomba.edit', $lomba->id) }}"
                                     class="text-blue-500 hover:underline">Edit</a>
                                 @if ($isDeletionAllowed)
                                     <button onclick="showModal('{{ $lomba->id }}')"
-                                        class="text-red-500 hover:underline ml-2">Hapus</button>
+                                        class="text-red-500 hover:underline">Hapus</button>
                                 @endif
                             </td>
                         </tr>

@@ -30,14 +30,19 @@ class LombaController extends Controller
             'harga_pendaftaran' => 'required|numeric|min:0',
         ]);
 
+        // Simpan gambar jika ada
         if ($request->hasFile('gambar')) {
             $validated['gambar'] = $request->file('gambar')->store('gambar-lomba', 'public');
         }
+
+        // Tambahkan status dengan default `not_started` jika tidak disediakan
+        $validated['status'] = $request->input('status', 'not_started');
 
         Lomba::create($validated);
 
         return redirect()->route('admin.lomba')->with('success', 'Lomba berhasil dibuat.');
     }
+
 
     public function edit($id)
     {
