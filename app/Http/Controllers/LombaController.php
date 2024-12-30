@@ -86,4 +86,24 @@ class LombaController extends Controller
 
         return redirect()->route('admin.lomba')->with('success', 'Lomba berhasil dihapus.');
     }
+
+    public function startLomba($id)
+    {
+        $lomba = Lomba::findOrFail($id);
+
+        if ($lomba->status === 'not_started') {
+            $lomba->update(['status' => 'in_progress']);
+            return redirect()->route('admin.lomba')->with('success', 'Lomba berhasil dimulai.');
+        }
+
+        return redirect()->route('admin.lomba')->with('error', 'Lomba tidak bisa dimulai.');
+    }
+
+    public function monitoring($id)
+    {
+        $lomba = Lomba::findOrFail($id);
+        $participants = $lomba->participants; // Pastikan Anda memiliki relasi dengan peserta lomba
+
+        return view('dashboard.admin.lomba.monitoring', compact('lomba', 'participants'));
+    }
 }

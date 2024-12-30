@@ -9,7 +9,7 @@ export default defineConfig({
             input: [
                 "resources/css/app.css", // File CSS utama
                 "resources/js/app.js", // File JS utama
-                "resources/js/**/*.jsx", // Semua file JSX di dalam folder resources/js
+                // "resources/js/**/*.jsx", // Semua file JSX di dalam folder resources/js
             ],
             refresh: true,
         }),

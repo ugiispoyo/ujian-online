@@ -44,18 +44,23 @@ Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
         return view('dashboard.admin.dashboard');
     })->name('dashboard-admin');
 
-    // CRUD lomba
+    // Lomba
     Route::get('/lomba', [LombaController::class, 'index'])->name('admin.lomba');
     Route::get('/lomba/create', [LombaController::class, 'create'])->name('admin.lomba.create');
     Route::post('/lomba', [LombaController::class, 'store'])->name('admin.lomba.store');
     Route::get('/lomba/{id}/edit', [LombaController::class, 'edit'])->name('admin.lomba.edit');
     Route::put('/lomba/{id}', [LombaController::class, 'update'])->name('admin.lomba.update');
     Route::delete('/lomba/{id}', [LombaController::class, 'destroy'])->name('admin.lomba.destroy');
+    Route::put('/lomba/{id}/start', [LombaController::class, 'startLomba'])->name('admin.lomba.start');
 
+    // Monitoring Lomba
+    Route::get('/lomba/{id}/monitoring', [LombaController::class, 'monitoring'])->name('admin.lomba.monitoring');
+
+    // Pendaftaran Lomba
     Route::get('/admin/pendaftaran-lomba', [\App\Http\Controllers\PendaftaranLombaController::class, 'index'])->name('admin.pendaftaran-lomba.index');
     Route::post('/admin/pendaftaran-lomba/{id}/confirm', [\App\Http\Controllers\PendaftaranLombaController::class, 'confirm'])->name('admin.pendaftaran-lomba.confirm');
 
-    // CRUD soal
+    // Soal
     Route::get('/soal/create', [SoalController::class, 'create'])->name('admin.soal.create');
     Route::post('/soal', [SoalController::class, 'store'])->name('admin.soal.store');
     Route::get('/soal', [SoalController::class, 'index'])->name('admin.soal.index');

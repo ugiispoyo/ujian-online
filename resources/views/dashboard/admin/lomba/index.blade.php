@@ -54,12 +54,23 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4">
-                                <a href="{{ route('admin.lomba.edit', $lomba->id) }}"
-                                    class="text-blue-500 hover:underline">Edit</a>
-                                @if ($isDeletionAllowed)
-                                    <button onclick="showModal('{{ $lomba->id }}')"
-                                        class="text-red-500 hover:underline">Hapus</button>
-                                @endif
+                                <div class="flex w-full flex-col items-start gap-2">
+                                    @if ($lomba->status === 'not_started')
+                                        <form action="{{ route('admin.lomba.start', $lomba->id) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <button class="text-green-500 hover:underline">Mulai</button>
+                                        </form>
+                                    @endif
+                                    @if ($lomba->status !== 'in_progress' && $lomba->status !== 'completed')
+                                        <a href="{{ route('admin.lomba.edit', $lomba->id) }}"
+                                            class="text-blue-500 hover:underline">Edit</a>
+                                        @if ($isDeletionAllowed)
+                                            <button onclick="showModal('{{ $lomba->id }}')"
+                                                class="text-red-500 hover:underline">Hapus</button>
+                                        @endif
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforeach
