@@ -25,13 +25,4 @@ export default defineConfig({
             "@": path.resolve(__dirname, "resources/js"),
         },
     },
-    server: {
-        host: "0.0.0.0",
-        port: 5173,
-        strictPort: true,
-        hmr: {
-            host: "289a-103-76-150-50.ngrok-free.app",
-            protocol: "wss",
-        },
-    },
 });
