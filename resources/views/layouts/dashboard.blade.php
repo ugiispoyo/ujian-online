@@ -5,8 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Dashboard' }}</title>
-    @vite('resources/css/app.css')
-    <script src="{{ asset('node_modules/flowbite/dist/flowbite.min.js') }}" defer></script>
+    @if (app()->environment('production'))
+        {{-- Load file CSS --}}
+        @foreach (load_vite_assets()['css'] as $css)
+            <link rel="stylesheet" href="{{ $css }}">
+        @endforeach
+
+        {{-- Load file JS --}}
+        @foreach (load_vite_assets()['js'] as $js)
+            <script type="module" src="{{ $js }}"></script>
+        @endforeach
+    @else
+        @vite('resources/css/app.css')
+        <script src="{{ asset('node_modules/flowbite/dist/flowbite.min.js') }}" defer></script>
+    @endif
 </head>
 
 <body class="bg-gray-100 font-sans antialiased">

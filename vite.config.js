@@ -7,17 +7,31 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                "resources/css/app.css", // File CSS utama
-                "resources/js/app.js", // File JS utama
-                // "resources/js/**/*.jsx", // Semua file JSX di dalam folder resources/js
+                "resources/css/app.css",
+                "resources/js/app.js",
+                "resources/js/soal/create.jsx"
             ],
             refresh: true,
         }),
         react(),
     ],
+    build: {
+        manifest: true,
+        outDir: "public/build",
+        assetsDir: "assets",
+    },
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "resources/js"),
+        },
+    },
+    server: {
+        host: "0.0.0.0",
+        port: 5173,
+        strictPort: true,
+        hmr: {
+            host: "289a-103-76-150-50.ngrok-free.app",
+            protocol: "wss",
         },
     },
 });

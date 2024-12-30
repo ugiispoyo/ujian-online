@@ -30,7 +30,7 @@ const SoalForm = () => {
         [{ header: [1, 2, 3, 4, 5, 6, false] }],
         [{ align: [] }],
         [{ list: "ordered" }, { list: "bullet" }],
-        ["image", "link"],
+        ["image"],
     ];
 
     // Ambil id_lomba dari query parameter

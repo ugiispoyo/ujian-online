@@ -12,5 +12,7 @@
     </div>
 @endsection
 
-@viteReactRefresh
-@vite('resources/js/soal/create.jsx')
+@if (!app()->environment('production'))
+    @viteReactRefresh
+    @vite('resources/js/soal/create.jsx')
+@endif
