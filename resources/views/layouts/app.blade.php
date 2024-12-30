@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Ujian Online App' }}</title>
     @vite('resources/css/app.css')
+    <script src="{{ asset('node_modules/flowbite/dist/flowbite.min.js') }}" defer></script>
 </head>
 
 <body class="bg-gray-100 font-sans antialiased">
@@ -28,8 +29,6 @@
     <div class="container mx-auto mt-8 flex justify-center">
         @yield('content')
     </div>
-
-    <script src="{{ asset('node_modules/flowbite/dist/flowbite.min.js') }}"></script>
 </body>
 
 </html>
