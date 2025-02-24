@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\Admin;
 
 class AuthController extends Controller
 {
@@ -29,7 +30,7 @@ class AuthController extends Controller
             'sekolah' => 'required|string',
             'kelas' => 'required|string',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8|confirmed',
+            // 'password' => 'required|min:8|confirmed',
         ]);
 
         User::create([
@@ -41,10 +42,18 @@ class AuthController extends Controller
             'sekolah' => $validatedData['sekolah'],
             'kelas' => $validatedData['kelas'],
             'email' => $validatedData['email'],
-            'password' => Hash::make($validatedData['password']),
+            'password' => Hash::make("1234567890"), /* Default password, untuk bypass karena loginnya nanti dari gmail */
         ]);
 
-        return redirect('/login')->with('success', 'Registrasi berhasil! Silakan login.');
+        /* setelah berhasil register, langsung login */
+        $user = User::where('email', $validatedData['email'])->first();
+        if ($user) {
+            Auth::guard('web')->login($user);
+            $request->session()->regenerate();
+            return redirect()->route('dashboard')->with('success', 'Login sebagai siswa berhasil!');
+        }
+
+        return back()->withErrors(['email' => 'Email atau password salah.'])->onlyInput('email');
     }
 
     public function login(Request $request)
@@ -79,7 +88,7 @@ class AuthController extends Controller
 
         if (!$idToken) {
             Log::error('ID Token tidak ditemukan.');
-            return back()->withErrors(['id' => 'ID Token tidak ditemukan. Silakan coba login ulang.']);
+            return response()->json(["error" => "ID Token tidak ditemukan"], 400);
         }
 
         try {
@@ -90,30 +99,81 @@ class AuthController extends Controller
             Log::info('Email dari Firebase: ' . $email);
 
             $user = User::where('email', $email)->first();
+            $admin = Admin::where('email', $email)->first();
 
-            if (!$user) {
+            if (!$user && !$admin) {
                 Log::warning('Email tidak ditemukan di database: ' . $email);
-                return back()->withErrors(['email' => 'Email tidak terdaftar. Silakan registrasi terlebih dahulu.']);
+                return response()->json(["error" => "Email tidak ditemukan, silahkan register terlebih dahulu"], 404);
             }
 
-            Auth::login($user);
-            Log::info('Login berhasil untuk user: ' . $user->name);
+            if ($admin) {
+                Auth::guard('admin')->login($admin);
+                $request->session()->regenerate();
+                Log::info('Login berhasil untuk admin: ' . $admin->name);
+                return response()->json(["redirect" => "/admin/dashboard"]);
+            }
 
-            return redirect('/dashboard')->with('success', 'Login dengan Gmail berhasil!');
+            if ($user) {
+                Auth::guard('web')->login($user);
+                $request->session()->regenerate();
+                Log::info('Login berhasil untuk user: ' . $user->name);
+                return response()->json(["redirect" => "/dashboard"]);
+            }
         } catch (\Exception $e) {
             Log::error('Gagal memproses login dengan Gmail: ' . $e->getMessage());
-            return back()->withErrors(['all' =>  'Gagal memproses login dengan Gmail: ' . $e->getMessage()]);
+            return response()->json(['all' => 'Gagal memproses login dengan Gmail: ' . $e->getMessage()], 500);
         }
     }
 
+    public function checkEmailExists(Request $request)
+    {
+        $email = $request->input('email');
+        $user = User::where('email', $email)->first();
+        $admin = Admin::where('email', $email)->first();
 
+        if ($admin) {
+            Auth::guard('admin')->login($admin);
+            $request->session()->regenerate();
+            Log::info('Akun sudah terdaftar sebagai admin: ' . $admin->name);
+            return response()->json(["redirect" => "/admin/dashboard"]);
+        }
+
+        if ($user) {
+            Auth::guard('web')->login($user);
+            $request->session()->regenerate();
+            Log::info('Akun sudah terdaftar sebagai user: ' . $user->name);
+            return response()->json(["redirect" => "/dashboard"]);
+        }
+
+        return response()->json(['exists' => false]);
+    }
 
 
     public function logout(Request $request)
     {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        Log::info('Proses logout dimulai.');
+
+        // Logout untuk user biasa (web)
+        if (Auth::guard('web')->check()) {
+            Log::info('User biasa terdeteksi, melakukan logout.');
+            Auth::guard('web')->logout();
+        }
+
+        // Logout untuk admin
+        if (Auth::guard('admin')->check()) {
+            Log::info('Admin terdeteksi, melakukan logout.');
+            Auth::guard('admin')->logout();
+        }
+
+        // Hapus semua sesi dan regenerasi token
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        } else {
+            Log::error('Session tidak tersedia pada request.');
+        }
+
+        Log::info('Logout berhasil, session dihapus.');
 
         return redirect('/login')->with('success', 'Logout berhasil.');
     }

@@ -1,36 +1,32 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-
-use App\Http\Controllers\LombaController;
 use App\Http\Controllers\PendaftaranLombaController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LombaController;
 use App\Http\Controllers\SoalController;
 
-// Halaman login dan register (tanpa proteksi middleware)
 Route::view('/login', 'auth.login')->name('login');
 Route::view('/register', 'auth.register')->name('register');
 
-Route::post('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('google.callback');
-
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('google.callback');
+Route::post('/auth/google/check-email', [AuthController::class, 'checkEmailExists'])->name('google.check-email');
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Proteksi untuk siswa
-Route::middleware(['auth'])->group(function () {
-    // Redirect default
+Route::middleware(['auth:web', 'App\Http\Middleware\AuthenticateRole:web'])->group(function () {
     Route::get('/', function () {
         return redirect()->route('dashboard');
     });
 
-    Route::get('/edit-profile', [\App\Http\Controllers\SiswaController::class, 'edit'])->name('edit-profile');
-    Route::post('/edit-profile', [\App\Http\Controllers\SiswaController::class, 'update'])->name('update-profile');
-
-    // Dashboard siswa
     Route::get('/dashboard', function () {
         return view('dashboard.dashboard');
     })->name('dashboard');
+
+    Route::get('/edit-profile', [\App\Http\Controllers\SiswaController::class, 'edit'])->name('edit-profile');
+    Route::post('/edit-profile', [\App\Http\Controllers\SiswaController::class, 'update'])->name('update-profile');
 
     // Halaman daftar lomba untuk siswa
     Route::get('/daftar-lomba', [\App\Http\Controllers\LombaSiswaController::class, 'index'])->name('daftar-lomba');
@@ -39,9 +35,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/status-pembayaran', [\App\Http\Controllers\SiswaController::class, 'daftarPembayaran'])->name('status-pembayaran');
 });
 
-// Proteksi untuk admin
-Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
-    // Dashboard admin
+Route::middleware(['auth:admin', 'App\Http\Middleware\AuthenticateRole:admin'])->prefix("admin")->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard.admin.dashboard');
     })->name('dashboard-admin');

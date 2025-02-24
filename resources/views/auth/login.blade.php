@@ -4,8 +4,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="w-full max-w-md bg-white p-6 rounded shadow-md">
         <h2 class="text-2xl font-bold text-center mb-4">Login</h2>
-        {{-- <form action="{{ url('/login') }}" method="POST" class="space-y-4"> --}}
-        {{-- @csrf
+        {{-- <form action="{{ url('/login') }}" method="POST" class="space-y-4">
+            @csrf
             <div>
                 <label for="email" class="block text-sm font-medium">Email</label>
                 <input type="email" name="email" id="email" required
@@ -18,8 +18,8 @@
             </div>
             <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
                 Login
-            </button> --}}
-        {{-- </form> --}}
+            </button>
+        </form> --}}
 
         <div class="mt-4">
             <button onclick="loginWithGoogle()"
@@ -83,6 +83,10 @@
         const auth = getAuth(app);
         const googleProvider = new GoogleAuthProvider();
 
+        googleProvider.setCustomParameters({
+            prompt: 'select_account'
+        });
+
         // Fungsi Login dengan Gmail
         window.loginWithGoogle = function() {
             signInWithPopup(auth, googleProvider)
@@ -90,25 +94,29 @@
                 .then((idToken) => {
                     console.log('ID Token:', idToken);
                     fetch('/auth/google/callback', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                                'content')
-                        },
-                        body: JSON.stringify({
-                            idToken: idToken
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content')
+                            },
+                            body: JSON.stringify({
+                                idToken: idToken
+                            })
                         })
-                    }).then(response => {
-                        if (response.ok) {
-                            window.location.href = '/dashboard';
-                        } else {
-                            console.error('Login gagal:', response.status, response.statusText);
-                            alert('Gagal login dengan Gmail. Silakan coba lagi.');
-                        }
-                    }).catch((error) => {
-                        console.error('Gagal mengirim ID Token ke backend:', error);
-                    });
+                        .then(response => {
+                            if (!response.ok) {
+                                alert('Akun anda tidak ditemukan, silahkan registrasi terlebih dahulu');
+                                window.location.href = '/register';
+                                return;
+                            }
+                            return response.json()
+                        })
+                        .then((data) => {
+                            window.location.href = data.redirect;
+                        }).catch((error) => {
+                            console.error('Gagal mengirim ID Token ke backend:', error);
+                        });
                 })
                 .catch((error) => {
                     console.error('Gagal login dengan Google:', error);
