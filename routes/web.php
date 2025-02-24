@@ -11,6 +11,8 @@ use App\Http\Controllers\SoalController;
 Route::view('/login', 'auth.login')->name('login');
 Route::view('/register', 'auth.register')->name('register');
 
+Route::post('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('google.callback');
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
