@@ -21,8 +21,7 @@ return new class extends Migration
             
             $table->string('nama_room');
             $table->timestamp('waktu_selesai')->nullable();
-            $table->integer('durasi')->comment('Durasi dalam menit');
-            $table->json('peserta')->nullable(); 
+            $table->integer('durasi')->nullable()->comment('Durasi dalam menit');
             $table->enum('status', ['draft', 'selesai'])->default('draft'); 
             $table->json('soal_terjawab')->nullable(); 
             $table->integer('nilai')->nullable()->default(0);

@@ -4,78 +4,98 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\RoomTes;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use App\Models\Lomba;
+use App\Models\Soal;
 
 class RoomTesController extends Controller
 {
-    /**
-     * Mendapatkan data Room Tes
-     */
-    public function getRoom($id)
+
+    public function startTest($id)
     {
-        $room = RoomTes::with(['lomba', 'siswa'])->findOrFail($id);
-        $soal_lomba = $room->lomba->soal ?? [];
+        $userId = Auth::id();
+
+        // Cek apakah lomba ada dan sedang berlangsung
+        $lomba = Lomba::findOrFail($id);
+        if ($lomba->status !== 'in_progress') {
+            return redirect()->route('lomba.index')->with('error', 'Tes belum bisa dimulai.');
+        }
+
+        // Cek apakah user sudah memiliki room ujian untuk lomba ini
+        $room = RoomTes::where('id_lomba', $id)
+            ->where('id_siswa', $userId)
+            ->first();
+
+        if (!$room) {
+            // Buat room baru jika belum ada
+            $room = RoomTes::create([
+                'id' => Str::uuid(),
+                'id_lomba' => $id,
+                'id_siswa' => $userId,
+                'nama_room' => 'Room Tes - ' . $lomba->nama_lomba,
+                // 'waktu_selesai' => Carbon::now()->addMinutes($lomba->durasi), // Atur waktu selesai
+                // 'durasi' => $lomba->durasi,
+                'status' => 'draft',
+                'soal_terjawab' => json_encode([]), // Default kosong
+                'nilai' => 0,
+            ]);
+        }
+
+        // Redirect ke halaman Room Ujian
+        return redirect()->route('room.tes.show', $room->id);
+    }
+
+    public function show($id)
+    {
+        // Ambil room ujian berdasarkan id
+        $room = RoomTes::where('id', $id)->where('id_siswa', Auth::id())->firstOrFail();
+
+        // Kirim data ke view
+        return view('layouts.test', compact('room'));
+    }
+
+    public function getSoal($id)
+    {
+        // Cek apakah room tes ada untuk user saat ini
+        $room = RoomTes::where('id', $id)
+            ->first();
+
+        if (!$room) {
+            return response()->json(['message' => 'Room Tes tidak ditemukan.'], 404);
+        }
+
+        // Ambil soal dari tabel `soal` berdasarkan `id_lomba`
+        $soalData = Soal::where('id_lomba', $room->id_lomba)->first();
+
+        if (!$soalData) {
+            return response()->json(['message' => 'Soal belum tersedia.'], 404);
+        }
+
+        // Decode soal JSON
+        $soalList = is_string($soalData->soal) ? json_decode($soalData->soal, true) : $soalData->soal;
+
+        // Hapus jawaban yang benar sebelum dikirim ke frontend
+        foreach ($soalList as &$soal) {
+            unset($soal['jawaban_yang_benar']);
+        }
 
         return response()->json([
             'room' => $room,
-            'soal' => $soal_lomba,
+            'soal' => $soalList,
         ]);
     }
 
-    /**
-     * Menyimpan Progres Soal Terjawab
-     */
-    public function saveProgress(Request $request, $id)
+    public function updateJawaban(Request $request, $id)
     {
-        $request->validate([
-            'soal_terjawab' => 'required|array',
-        ]);
+        $room = RoomTes::where('id', $id)
+            ->firstOrFail();
 
-        $room = RoomTes::findOrFail($id);
-
-        if ($room->status !== 'selesai') {
-            $room->update([
-                'soal_terjawab' => $request->soal_terjawab,
-                'status' => 'draft',
-            ]);
-
-            return response()->json([
-                'message' => 'Progres tes berhasil disimpan.',
-                'data' => $room
-            ]);
-        } else {
-            return response()->json(['message' => 'Tes telah selesai.'], 400);
-        }
-    }
-
-    /**
-     * Menghitung Nilai dan Submit Tes
-     */
-    public function submitTes(Request $request, $id)
-    {
-        $room = RoomTes::with('lomba')->findOrFail($id);
-        $soal_terjawab = $room->soal_terjawab ?? [];
-        $soal_asli = $room->lomba->soal ?? [];
-
-        $nilai = 0;
-
-        foreach ($soal_asli as $soal) {
-            if (
-                isset($soal_terjawab[$soal['id']]) &&
-                $soal_terjawab[$soal['id']] === $soal['jawaban_yang_benar']
-            ) {
-                $nilai++;
-            }
-        }
-
+        // Simpan jawaban yang sudah diberikan oleh user
         $room->update([
-            'nilai' => $nilai,
-            'status' => 'selesai',
+            'soal_terjawab' => json_encode($request->input('jawaban', [])),
         ]);
 
-        return response()->json([
-            'message' => 'Tes berhasil disubmit.',
-            'nilai' => $nilai,
-            'data' => $room
-        ]);
+        return response()->json(['message' => 'Jawaban berhasil diperbarui']);
     }
 }

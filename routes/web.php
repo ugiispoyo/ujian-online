@@ -5,6 +5,7 @@ use App\Http\Controllers\PendaftaranLombaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LombaController;
 use App\Http\Controllers\SoalController;
+use App\Http\Controllers\RoomTesController;
 
 Route::view('/login', 'auth.login')->name('login');
 Route::view('/register', 'auth.register')->name('register');
@@ -35,6 +36,9 @@ Route::middleware(['auth:web', 'App\Http\Middleware\AuthenticateRole:web'])->gro
     Route::get('/status-pembayaran', [\App\Http\Controllers\SiswaController::class, 'daftarPembayaran'])->name('status-pembayaran');
 
     Route::get('/events', [\App\Http\Controllers\LombaSiswaController::class, 'list'])->name('events-siswa');
+
+    Route::post('/lomba/{id}/start', [RoomTesController::class, 'startTest'])->name('lomba.start');
+    Route::get('/room-tes/{id}', [RoomTesController::class, 'show'])->name('room.tes.show');
 });
 
 Route::middleware(['auth:admin', 'App\Http\Middleware\AuthenticateRole:admin'])->prefix("admin")->group(function () {

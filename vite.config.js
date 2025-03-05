@@ -9,7 +9,8 @@ export default defineConfig({
             input: [
                 "resources/css/app.css",
                 "resources/js/app.js",
-                "resources/js/soal/create.jsx"
+                "resources/js/soal/create.jsx",
+                "resources/js/room-ujian/tes.jsx"
             ],
             refresh: true,
         }),
