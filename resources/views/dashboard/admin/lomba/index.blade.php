@@ -62,6 +62,15 @@
                                             <button class="text-green-500 hover:underline">Mulai</button>
                                         </form>
                                     @endif
+
+                                    @if ($lomba->status === 'in_progress')
+                                        <form action="{{ route('admin.lomba.complete', $lomba->id) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <button class="text-red-500 hover:underline">Selesaikan</button>
+                                        </form>
+                                    @endif
+                                    
                                     @if ($lomba->status !== 'in_progress' && $lomba->status !== 'completed')
                                         <a href="{{ route('admin.lomba.edit', $lomba->id) }}"
                                             class="text-blue-500 hover:underline">Edit</a>

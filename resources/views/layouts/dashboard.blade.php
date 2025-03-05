@@ -75,6 +75,12 @@
                                 Status Pembayaran Lomba
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('events-siswa') }}"
+                                class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                                Events
+                            </a>
+                        </li>
                     @endif
                 </ul>
             </div>

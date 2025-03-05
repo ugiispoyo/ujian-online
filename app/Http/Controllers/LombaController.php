@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Lomba;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -26,9 +27,12 @@ class LombaController extends Controller
             'nama_lomba' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'gambar' => 'nullable|image|max:2048',
-            'waktu_lomba' => 'required|date',
+            'waktu_lomba' => ['required', 'date', 'after_or_equal:' . Carbon::tomorrow()->toDateString()], // Minimal besok
             'harga_pendaftaran' => 'required|numeric|min:0',
+        ], [
+            'waktu_lomba.after_or_equal' => 'Tanggal lomba harus minimal besok.',
         ]);
+
 
         // Simpan gambar jika ada
         if ($request->hasFile('gambar')) {
@@ -58,9 +62,12 @@ class LombaController extends Controller
             'nama_lomba' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'gambar' => 'nullable|image|max:2048',
-            'waktu_lomba' => 'required|date',
+            'waktu_lomba' => ['required', 'date', 'after_or_equal:' . Carbon::tomorrow()->toDateString()], // Minimal besok
             'harga_pendaftaran' => 'required|numeric|min:0',
+        ], [
+            'waktu_lomba.after_or_equal' => 'Tanggal lomba harus minimal besok.',
         ]);
+
 
         if ($request->hasFile('gambar')) {
             if ($lomba->gambar) {
@@ -105,5 +112,19 @@ class LombaController extends Controller
         $participants = $lomba->participants; // Pastikan Anda memiliki relasi dengan peserta lomba
 
         return view('dashboard.admin.lomba.monitoring', compact('lomba', 'participants'));
+    }
+
+    public function complete($id)
+    {
+        $lomba = Lomba::findOrFail($id);
+
+        // Pastikan lomba sedang berlangsung sebelum bisa diselesaikan
+        if ($lomba->status !== 'in_progress') {
+            return redirect()->route('admin.lomba')->with('error', 'Lomba tidak bisa diselesaikan karena belum dimulai.');
+        }
+
+        $lomba->update(['status' => 'completed']);
+
+        return redirect()->route('admin.lomba')->with('success', 'Lomba telah berhasil diselesaikan.');
     }
 }
