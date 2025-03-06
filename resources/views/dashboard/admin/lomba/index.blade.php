@@ -68,11 +68,6 @@
                                     @endif
 
                                     @if ($lomba->status === 'in_progress')
-                                        <form action="{{ route('admin.lomba.complete', $lomba->id) }}" method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <button class="text-red-500 hover:underline">Selesaikan</button>
-                                        </form>
                                         <a href="{{ route('admin.lomba.monitoring', $lomba->id) }}"
                                             class="text-purple-500 hover:underline">Monitoring</a>
                                     @endif

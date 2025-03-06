@@ -4,6 +4,18 @@
     <div class="p-6">
         <h1 class="text-2xl font-bold mb-4">Monitoring Lomba: {{ $lomba->nama_lomba }}</h1>
 
+        <div class="mb-4 p-4 bg-gray-100 border rounded">
+            <h2 class="text-lg font-semibold">Sisa Waktu Ujian:</h2>
+            <p id="countdown" class="text-xl font-bold text-yellow-400"></p>
+            <p id="completed" class="text-xl font-bold text-red-500"></p>
+            <form action="{{ route('admin.lomba.complete', $lomba->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <button id="btn-complete" class="border border-gray-500 px-4 py-2 rounded-lg mt-2"
+                    style="display: none;">Selesaikan</button>
+            </form>
+        </div>
+
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -40,4 +52,37 @@
             </table>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Ambil waktu lomba dan durasi dari PHP
+            const waktuLomba = new Date("{{ $lomba->waktu_lomba }}");
+            const durasi = {{ $lomba->durasi }}; // dalam menit
+
+            // Hitung waktu selesai lomba
+            const waktuSelesai = new Date(waktuLomba.getTime() + durasi * 60000);
+
+            function updateCountdown() {
+                const now = new Date();
+                const timeRemaining = waktuSelesai - now;
+
+                if (timeRemaining <= 0) {
+                    document.getElementById("countdown").innerHTML = "";
+                    document.getElementById("completed").innerHTML = "Waktu habis";
+                    document.getElementById("btn-complete").style.display = "block";
+                    return;
+                }
+
+                const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+                document.getElementById("countdown").innerHTML =
+                    (hours > 0 ? hours + " jam " : "") + minutes + " menit " + seconds + " detik";
+            }
+
+            // Update countdown setiap detik
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        });
+    </script>
 @endsection
