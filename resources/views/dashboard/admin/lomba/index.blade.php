@@ -73,6 +73,8 @@
                                             @method('PUT')
                                             <button class="text-red-500 hover:underline">Selesaikan</button>
                                         </form>
+                                        <a href="{{ route('admin.lomba.monitoring', $lomba->id) }}"
+                                            class="text-purple-500 hover:underline">Monitoring</a>
                                     @endif
 
                                     @if ($lomba->status !== 'in_progress' && $lomba->status !== 'completed')

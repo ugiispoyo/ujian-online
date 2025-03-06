@@ -41,4 +41,17 @@ class Lomba extends Model
     {
         return $this->hasMany(PendaftaranLomba::class, 'id_lomba');
     }
+
+
+    // Relasi dengan tabel soal
+    public function soal()
+    {
+        return $this->hasOne(Soal::class, 'id_lomba', 'id');
+    }
+
+    // Helper untuk mendapatkan jumlah soal dalam lomba
+    public function getTotalSoalAttribute()
+    {
+        return is_array($this->soal->soal) ? count($this->soal->soal) : count(json_decode($this->soal->soal, true));
+    }
 }

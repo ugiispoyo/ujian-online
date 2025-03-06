@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Lomba;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\RoomTes;
 
 class LombaController extends Controller
 {
@@ -110,10 +111,10 @@ class LombaController extends Controller
 
     public function monitoring($id)
     {
-        $lomba = Lomba::findOrFail($id);
-        $participants = $lomba->participants; // Pastikan Anda memiliki relasi dengan peserta lomba
+        $lomba = Lomba::with('soal')->findOrFail($id);
+        $roomTes = RoomTes::where('id_lomba', $id)->with('siswa')->get();
 
-        return view('dashboard.admin.lomba.monitoring', compact('lomba', 'participants'));
+        return view('dashboard.admin.lomba.monitoring', compact('lomba', 'roomTes'));
     }
 
     public function complete($id)
