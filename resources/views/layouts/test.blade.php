@@ -79,6 +79,19 @@
 
 </body>
 
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const dropdownButton = document.getElementById("dropdownUserButton");
+        const dropdownMenu = document.getElementById("dropdownUser");
+
+        if (dropdownButton) {
+            dropdownButton.addEventListener("click", () => {
+                dropdownMenu.classList.toggle("hidden");
+            });
+        }
+    });
+</script>
+
 @if (!app()->environment('production'))
     @viteReactRefresh
     @vite('resources/js/room-ujian/tes.jsx')

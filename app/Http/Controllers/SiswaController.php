@@ -25,7 +25,6 @@ class SiswaController extends Controller
         // Validasi input
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'nik' => 'required|numeric|unique:users,nik,' . $user->id,
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'tanggal_lahir' => 'required|date',
             'alamat' => 'required|string',

@@ -23,7 +23,6 @@ class AuthController extends Controller
     {
         $validatedData = $request->validate([
             'nama' => 'required|string|max:255',
-            'nik' => 'required|numeric|unique:users,nik',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'tanggal_lahir' => 'required|date',
             'alamat' => 'required|string',
@@ -35,7 +34,6 @@ class AuthController extends Controller
 
         User::create([
             'name' => $validatedData['nama'],
-            'nik' => $validatedData['nik'],
             'jenis_kelamin' => $validatedData['jenis_kelamin'],
             'tanggal_lahir' => $validatedData['tanggal_lahir'],
             'alamat' => $validatedData['alamat'],

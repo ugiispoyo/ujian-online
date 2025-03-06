@@ -9,7 +9,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('nik')->unique()->nullable(); // Jadikan nullable
             $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan'])->nullable(); // Nullable
             $table->date('tanggal_lahir')->nullable(); // Nullable
             $table->text('alamat')->nullable(); // Nullable
@@ -22,7 +21,6 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn([
-                'nik',
                 'jenis_kelamin',
                 'tanggal_lahir',
                 'alamat',
