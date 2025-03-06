@@ -22,6 +22,7 @@
                         <th scope="col" class="px-6 py-3">Nama Lomba</th>
                         <th scope="col" class="px-6 py-3">Deskripsi</th>
                         <th scope="col" class="px-6 py-3">Waktu Lomba</th>
+                        <th scope="col" class="px-6 py-3">Durasi lomba</th>
                         <th scope="col" class="px-6 py-3">Harga Pendaftaran</th>
                         <th scope="col" class="px-6 py-3">Status</th>
                         <th scope="col" class="px-6 py-3">Aksi</th>
@@ -42,6 +43,9 @@
                             <td class="px-6 py-4">{{ Str::limit($lomba->deskripsi, 50) }}</td>
                             <td class="px-6 py-4">
                                 {{ $waktuLomba->locale('id')->translatedFormat('l, d F Y H:i') }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ $lomba->durasi }} Menit
                             </td>
                             <td class="px-6 py-4">Rp {{ number_format($lomba->harga_pendaftaran, 2) }}</td>
                             <td>
@@ -70,7 +74,7 @@
                                             <button class="text-red-500 hover:underline">Selesaikan</button>
                                         </form>
                                     @endif
-                                    
+
                                     @if ($lomba->status !== 'in_progress' && $lomba->status !== 'completed')
                                         <a href="{{ route('admin.lomba.edit', $lomba->id) }}"
                                             class="text-blue-500 hover:underline">Edit</a>

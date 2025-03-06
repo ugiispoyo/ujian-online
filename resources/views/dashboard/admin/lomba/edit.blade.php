@@ -54,6 +54,12 @@
             </div>
 
             <div>
+                <label for="durasi" class="block mb-2 text-sm font-medium text-gray-700">Durasi Lomba (Dalam menit)</label>
+                <input type="number" name="durasi" id="durasi" value="{{ old('durasi') }}" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+            </div>
+
+            <div>
                 <label for="harga_pendaftaran" class="block mb-2 text-sm font-medium text-gray-700">Harga
                     Pendaftaran</label>
                 <input type="number" name="harga_pendaftaran" id="harga_pendaftaran"

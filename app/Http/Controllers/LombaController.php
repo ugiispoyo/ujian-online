@@ -27,6 +27,7 @@ class LombaController extends Controller
             'nama_lomba' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'gambar' => 'nullable|image|max:2048',
+            'durasi' => 'required|numeric|min:1',
             'waktu_lomba' => ['required', 'date', 'after_or_equal:' . Carbon::tomorrow()->toDateString()], // Minimal besok
             'harga_pendaftaran' => 'required|numeric|min:0',
         ], [
@@ -62,6 +63,7 @@ class LombaController extends Controller
             'nama_lomba' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'gambar' => 'nullable|image|max:2048',
+            'durasi' => 'required|numeric|min:1',
             'waktu_lomba' => ['required', 'date', 'after_or_equal:' . Carbon::tomorrow()->toDateString()], // Minimal besok
             'harga_pendaftaran' => 'required|numeric|min:0',
         ], [
