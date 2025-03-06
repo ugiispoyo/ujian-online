@@ -91,9 +91,9 @@ class RoomTesController extends Controller
         $room = RoomTes::where('id', $id)
             ->firstOrFail();
 
-        // Simpan jawaban yang sudah diberikan oleh user
+        // Simpan jawaban sebagai array langsung ke database
         $room->update([
-            'soal_terjawab' => json_encode($request->input('jawaban', [])),
+            'soal_terjawab' => $request->input('jawaban', []),
         ]);
 
         return response()->json(['message' => 'Jawaban berhasil diperbarui']);

@@ -16,61 +16,74 @@ const Tes = () => {
             .get(`/api/room-tes/${roomId}`)
             .then((response) => {
                 setSoalList(response.data.soal);
-                setJawaban(
-                    response.data.room.soal_terjawab
-                        ? JSON.parse(response.data.room.soal_terjawab)
-                        : {}
-                );
+                const savedJawaban = response.data.room.soal_terjawab || [];
+
+                // Konversi array ke object berbasis id soal
+                const jawabanMap = {};
+                savedJawaban.forEach((item) => {
+                    jawabanMap[item.id] = item.jawaban_di_pilih;
+                });
+
+                setJawaban(jawabanMap);
+
                 setLoading(false);
             })
             .catch((error) => console.error("Gagal mengambil soal:", error));
     }, []);
 
     const saveJawabanToServer = (updatedJawaban) => {
+        const jawabanArray = Object.keys(updatedJawaban).map((id) => {
+            const soal = soalList.find((s) => s.id === id);
+            return {
+                id: id,
+                pertanyaan: soal ? soal.pertanyaan : "",
+                jawaban_di_pilih: updatedJawaban[id],
+            };
+        });
+
         axios
             .post(`/api/room-tes/${roomId}/update-jawaban`, {
-                jawaban: updatedJawaban,
+                jawaban: jawabanArray,
             })
             .catch((error) => console.error("Gagal menyimpan jawaban:", error));
     };
 
-    const handleJawabanChange = (index, value) => {
-        const updatedJawaban = {
-            ...jawaban,
-            [index]: value,
-        };
-        setJawaban(updatedJawaban);
-        setErrorMessage(""); // Hapus pesan error jika peserta sudah memilih jawaban
-
-        // Simpan jawaban ke server setiap kali ada perubahan
-        saveJawabanToServer(updatedJawaban);
+    const handleJawabanChange = (soalId, value) => {
+        setJawaban((prevJawaban) => {
+            const updatedJawaban = { ...prevJawaban, [soalId]: value };
+            saveJawabanToServer(updatedJawaban);
+            return updatedJawaban;
+        });
+        setErrorMessage("");
     };
 
     const handleNext = () => {
-        if (!jawaban.hasOwnProperty(currentIndex)) {
+        if (!jawaban[soalList[currentIndex].id]) {
             setErrorMessage("Silakan pilih jawaban sebelum melanjutkan.");
             return;
         }
-        setCurrentIndex(currentIndex + 1);
+        setCurrentIndex((prevIndex) => prevIndex + 1);
     };
 
     const handlePrevious = () => {
-        setErrorMessage(""); // Hapus error jika kembali ke soal sebelumnya
+        setErrorMessage("");
         if (currentIndex > 0) {
-            setCurrentIndex(currentIndex - 1);
+            setCurrentIndex((prevIndex) => prevIndex - 1);
         }
     };
 
+    const handleNavigateToSoal = (index) => {
+        setCurrentIndex(index);
+    };
+
     const handleSubmit = () => {
-        if (!jawaban.hasOwnProperty(currentIndex)) {
+        if (!jawaban[soalList[currentIndex].id]) {
             setErrorMessage("Silakan pilih jawaban sebelum mengumpulkan.");
             return;
         }
 
-        axios
-            .post(`/api/room-tes/${roomId}/submit`, { jawaban })
-            .then(() => alert("Jawaban berhasil dikirim"))
-            .catch((error) => console.error("Gagal mengirim jawaban:", error));
+        saveJawabanToServer(jawaban);
+        alert("Jawaban berhasil dikirim");
     };
 
     if (loading) return <p>Loading...</p>;
@@ -78,6 +91,28 @@ const Tes = () => {
     return (
         <div className="max-w-full mx-auto p-6 bg-white shadow-lg rounded-lg">
             <h1 className="text-xl font-bold mb-4">Room Ujian</h1>
+
+            {/* Denah Soal */}
+            <div className="flex flex-wrap gap-2 mb-4">
+                {soalList.map((soal, index) => (
+                    <button
+                        key={soal.id}
+                        className={`w-10 h-10 flex items-center justify-center border rounded-md ${
+                            jawaban[soal.id]
+                                ? "bg-green-500 text-white"
+                                : "bg-gray-300 text-black"
+                        } ${
+                            currentIndex === index
+                                ? "border-2 border-yellow-400"
+                                : "border-gray-400"
+                        }`}
+                        onClick={() => handleNavigateToSoal(index)}
+                    >
+                        {index + 1}
+                    </button>
+                ))}
+            </div>
+
             {soalList.length > 0 ? (
                 <div>
                     <div className="mb-4">
@@ -95,13 +130,16 @@ const Tes = () => {
                             <label key={idx} className="flex items-center mt-2">
                                 <input
                                     type="radio"
-                                    name={`jawaban-${currentIndex}`}
+                                    name={`jawaban-${soalList[currentIndex].id}`}
                                     value={option}
                                     className="mr-2"
-                                    checked={jawaban[currentIndex] === option}
+                                    checked={
+                                        jawaban[soalList[currentIndex].id] ===
+                                        option
+                                    }
                                     onChange={() =>
                                         handleJawabanChange(
-                                            currentIndex,
+                                            soalList[currentIndex].id,
                                             option
                                         )
                                     }
@@ -113,7 +151,6 @@ const Tes = () => {
                         ))}
                     </div>
 
-                    {/* Pesan error jika belum memilih jawaban */}
                     {errorMessage && (
                         <p className="text-red-500">{errorMessage}</p>
                     )}
@@ -135,11 +172,11 @@ const Tes = () => {
                             <button
                                 onClick={handleNext}
                                 className={`px-4 py-2 rounded-md text-white ${
-                                    jawaban.hasOwnProperty(currentIndex)
+                                    jawaban[soalList[currentIndex].id]
                                         ? "bg-blue-600 hover:bg-blue-700"
                                         : "bg-gray-400 cursor-not-allowed"
                                 }`}
-                                disabled={!jawaban.hasOwnProperty(currentIndex)}
+                                disabled={!jawaban[soalList[currentIndex].id]}
                             >
                                 Selanjutnya
                             </button>
@@ -147,11 +184,11 @@ const Tes = () => {
                             <button
                                 onClick={handleSubmit}
                                 className={`px-4 py-2 rounded-md text-white ${
-                                    jawaban.hasOwnProperty(currentIndex)
+                                    jawaban[soalList[currentIndex].id]
                                         ? "bg-green-600 hover:bg-green-700"
                                         : "bg-gray-400 cursor-not-allowed"
                                 }`}
-                                disabled={!jawaban.hasOwnProperty(currentIndex)}
+                                disabled={!jawaban[soalList[currentIndex].id]}
                             >
                                 Kumpulkan Jawaban
                             </button>
