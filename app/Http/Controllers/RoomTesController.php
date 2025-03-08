@@ -18,8 +18,12 @@ class RoomTesController extends Controller
 
         // Cek apakah lomba ada dan sedang berlangsung
         $lomba = Lomba::findOrFail($id);
-        if ($lomba->status !== 'in_progress') {
-            return redirect()->route('lomba.index')->with('error', 'Tes belum bisa dimulai.');
+        if ($lomba->status !== 'in_progress' && $lomba->status !== 'completed') {
+            return redirect()->route('events-siswa')->with('error', 'Tes belum bisa dimulai.');
+        }
+
+        if ($lomba->status === 'completed') {
+            return redirect()->route('ujian.selesai')->with('error', 'Tes sudah selesai.');
         }
 
         // Cek apakah user sudah memiliki room ujian untuk lomba ini
@@ -34,10 +38,8 @@ class RoomTesController extends Controller
                 'id_lomba' => $id,
                 'id_siswa' => $userId,
                 'nama_room' => 'Room Tes - ' . $lomba->nama_lomba,
-                // 'waktu_selesai' => Carbon::now()->addMinutes($lomba->durasi), // Atur waktu selesai
-                // 'durasi' => $lomba->durasi,
+                'durasi' => $lomba->durasi,
                 'status' => 'draft',
-                'soal_terjawab' => json_encode([]), // Default kosong
                 'nilai' => 0,
             ]);
         }
@@ -83,6 +85,7 @@ class RoomTesController extends Controller
         return response()->json([
             'room' => $room,
             'soal' => $soalList,
+            'lomba' => $room->lomba,
         ]);
     }
 

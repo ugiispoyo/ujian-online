@@ -8,6 +8,8 @@ const Tes = () => {
     const [jawaban, setJawaban] = useState({});
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState("");
+    const [timeLeft, setTimeLeft] = useState(null);
+    const [roomStatus, setRoomStatus] = useState("draft");
 
     const roomId = window.location.pathname.split("/")[2];
 
@@ -15,8 +17,20 @@ const Tes = () => {
         axios
             .get(`/api/room-tes/${roomId}`)
             .then((response) => {
-                setSoalList(response.data.soal);
-                const savedJawaban = response.data.room.soal_terjawab || [];
+                const data = response.data;
+                setSoalList(data.soal);
+                setRoomStatus(data.room.status);
+
+                // Ambil waktu lomba dan durasi
+                const waktuLomba = new Date(data.lomba.waktu_lomba); // Start lomba
+                const durasi = data.lomba.durasi * 60000; // Durasi dalam milidetik
+
+                // Hitung waktu selesai
+                const waktuSelesai = new Date(waktuLomba.getTime() + durasi);
+
+                startCountdown(waktuSelesai);
+
+                const savedJawaban = data.room.soal_terjawab || [];
 
                 // Konversi array ke object berbasis id soal
                 const jawabanMap = {};
@@ -25,10 +39,12 @@ const Tes = () => {
                 });
 
                 setJawaban(jawabanMap);
-
                 setLoading(false);
             })
-            .catch((error) => console.error("Gagal mengambil soal:", error));
+            .catch((error) => {
+                console.error("Gagal mengambil soal:", error);
+                window.location.href = "/ujian-selesai"; // Redirect jika ujian tidak bisa diakses
+            });
     }, []);
 
     const saveJawabanToServer = (updatedJawaban) => {
@@ -86,11 +102,53 @@ const Tes = () => {
         alert("Jawaban berhasil dikirim");
     };
 
+    // Function untuk menjalankan countdown berdasarkan waktu lomba + durasi
+    const startCountdown = (waktuSelesai) => {
+        const interval = setInterval(() => {
+            const now = new Date();
+            const timeRemaining = waktuSelesai - now;
+
+            if (timeRemaining <= 0) {
+                clearInterval(interval);
+                window.location.href = "/ujian-selesai"; // Redirect jika waktu habis
+            } else {
+                const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+                const minutes = Math.floor(
+                    (timeRemaining % (1000 * 60 * 60)) / (1000 * 60)
+                );
+                const seconds = Math.floor(
+                    (timeRemaining % (1000 * 60)) / 1000
+                );
+                setTimeLeft(
+                    (hours > 0 ? hours + " jam " : "") +
+                        minutes +
+                        " menit " +
+                        seconds +
+                        " detik"
+                );
+            }
+        }, 1000);
+    };
+
+    if (loading) return <p>Loading...</p>;
+
+    // Jika ujian sudah selesai, redirect user
+    if (roomStatus === "completed") {
+        window.location.href = "/ujian-selesai";
+        return null;
+    }
+
     if (loading) return <p>Loading...</p>;
 
     return (
         <div className="max-w-full mx-auto p-6 bg-white shadow-lg rounded-lg">
             <h1 className="text-xl font-bold mb-4">Room Ujian</h1>
+
+            {/* Countdown Timer */}
+            <div className="mb-4 p-4 bg-gray-100 border rounded">
+                <h2 className="text-lg font-semibold">Sisa Waktu:</h2>
+                <p className="text-xl font-bold text-yellow-400">{timeLeft}</p>
+            </div>
 
             {/* Denah Soal */}
             <div className="flex flex-wrap gap-2 mb-4">

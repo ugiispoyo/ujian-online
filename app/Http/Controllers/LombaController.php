@@ -120,14 +120,19 @@ class LombaController extends Controller
     public function complete($id)
     {
         $lomba = Lomba::findOrFail($id);
-
+    
         // Pastikan lomba sedang berlangsung sebelum bisa diselesaikan
         if ($lomba->status !== 'in_progress') {
             return redirect()->route('admin.lomba')->with('error', 'Lomba tidak bisa diselesaikan karena belum dimulai.');
         }
-
+    
+        // Update status lomba menjadi completed
         $lomba->update(['status' => 'completed']);
-
-        return redirect()->route('admin.lomba')->with('success', 'Lomba telah berhasil diselesaikan.');
+    
+        // Update semua room_tes yang terkait dengan lomba ini menjadi selesai
+        RoomTes::where('id_lomba', $id)->update(['status' => 'selesai']);
+    
+        return redirect()->route('admin.lomba')->with('success', 'Lomba telah berhasil diselesaikan dan semua room ujian telah diupdate.');
     }
+    
 }
