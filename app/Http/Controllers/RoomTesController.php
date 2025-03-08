@@ -22,10 +22,6 @@ class RoomTesController extends Controller
             return redirect()->route('events-siswa')->with('error', 'Tes belum bisa dimulai.');
         }
 
-        if ($lomba->status === 'completed') {
-            return redirect()->route('ujian.selesai')->with('error', 'Tes sudah selesai.');
-        }
-
         // Cek apakah user sudah memiliki room ujian untuk lomba ini
         $room = RoomTes::where('id_lomba', $id)
             ->where('id_siswa', $userId)

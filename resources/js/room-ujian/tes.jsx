@@ -43,7 +43,6 @@ const Tes = () => {
             })
             .catch((error) => {
                 console.error("Gagal mengambil soal:", error);
-                window.location.href = "/ujian-selesai"; // Redirect jika ujian tidak bisa diakses
             });
     }, []);
 
@@ -110,7 +109,7 @@ const Tes = () => {
 
             if (timeRemaining <= 0) {
                 clearInterval(interval);
-                window.location.href = "/ujian-selesai"; // Redirect jika waktu habis
+                window.location.href = `/ujian-selesai/${roomId}`; // Redirect jika waktu habis
             } else {
                 const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
                 const minutes = Math.floor(
@@ -134,7 +133,7 @@ const Tes = () => {
 
     // Jika ujian sudah selesai, redirect user
     if (roomStatus === "completed") {
-        window.location.href = "/ujian-selesai";
+        window.location.href = `/ujian-selesai/${roomId}`;
         return null;
     }
 

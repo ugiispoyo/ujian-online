@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LombaController;
 use App\Http\Controllers\SoalController;
 use App\Http\Controllers\RoomTesController;
+use App\Http\Controllers\UjianController;
 
 Route::view('/login', 'auth.login')->name('login');
 Route::view('/register', 'auth.register')->name('register');
@@ -39,6 +40,8 @@ Route::middleware(['auth:web', 'App\Http\Middleware\AuthenticateRole:web'])->gro
 
     Route::post('/lomba/{id}/start', [RoomTesController::class, 'startTest'])->name('lomba.start');
     Route::get('/room-tes/{id}', [RoomTesController::class, 'show'])->name('room.tes.show');
+
+    Route::get('/ujian-selesai/{id}', [UjianController::class, 'ujianSelesai'])->name('ujian.selesai');
 });
 
 Route::middleware(['auth:admin', 'App\Http\Middleware\AuthenticateRole:admin'])->prefix("admin")->group(function () {

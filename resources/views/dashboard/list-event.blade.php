@@ -50,14 +50,21 @@
                                 <td class="border border-gray-300 px-4 py-2">
                                     {{ \Carbon\Carbon::parse($event->waktu_lomba)->format('d M Y H:i') }}</td>
                                 <td class="border border-gray-300 px-4 py-2 text-center w-[250px]">
-                                    @if ($isAvailable || $event->status === 'in_progress')
-                                        <form action="{{ route('lomba.start', $event->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit"
-                                                class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-                                                Mulai
-                                            </button>
-                                        </form>
+                                    @if ($isAvailable)
+                                        @if ($event->status === 'in_progress')
+                                            <form action="{{ route('lomba.start', $event->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                                                    Mulai
+                                                </button>
+                                            </form>
+                                        @elseif ($event->status === 'completed')
+                                            <a href="#"
+                                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                                                Detail
+                                            </a>
+                                        @endif
                                     @else
                                         <button class="px-4 py-2 bg-gray-400 text-white rounded-md cursor-not-allowed"
                                             disabled>
