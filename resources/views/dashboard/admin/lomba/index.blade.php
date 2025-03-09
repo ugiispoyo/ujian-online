@@ -118,7 +118,7 @@
     </div>
 
     <!-- Modal Dialog -->
-    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center hidden z-50">
         <div class="bg-white rounded-lg shadow-md p-6 w-full max-w-md">
             <h2 class="text-lg font-bold mb-4">Konfirmasi Hapus</h2>
             <p>Apakah Anda yakin ingin menghapus lomba ini?</p>
@@ -145,10 +145,12 @@
             const form = document.getElementById('delete-form');
             form.action = `/admin/lomba/${id}`;
             modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         function hideModal() {
             const modal = document.getElementById('delete-modal');
+            modal.classList.remove('flex');
             modal.classList.add('hidden');
         }
     </script>

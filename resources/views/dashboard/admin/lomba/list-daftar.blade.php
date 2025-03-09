@@ -104,7 +104,7 @@
     </div>
 
     <!-- Modal View Gambar -->
-    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center hidden z-50">
         <div class="relative bg-white rounded-lg shadow-md p-7 w-full max-w-3xl max-h-[80%] overflow-auto">
             <!-- Tombol Close -->
             <button onclick="hideImageModal()"
@@ -122,10 +122,12 @@
             const modalImage = document.getElementById('modal-image');
             modalImage.src = imageUrl;
             modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         function hideImageModal() {
             const modal = document.getElementById('image-modal');
+            modal.classList.remove('flex');
             modal.classList.add('hidden');
         }
     </script>
