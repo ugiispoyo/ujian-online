@@ -42,6 +42,8 @@ Route::middleware(['auth:web', 'App\Http\Middleware\AuthenticateRole:web'])->gro
     Route::get('/room-tes/{id}', [RoomTesController::class, 'show'])->name('room.tes.show');
 
     Route::get('/ujian-selesai/{id}', [UjianController::class, 'ujianSelesai'])->name('ujian.selesai');
+
+    Route::get('/lomba/{id}/detail', [\App\Http\Controllers\LombaSiswaController::class, 'detail'])->name('lomba.detail');
 });
 
 Route::middleware(['auth:admin', 'App\Http\Middleware\AuthenticateRole:admin'])->prefix("admin")->group(function () {
@@ -58,6 +60,7 @@ Route::middleware(['auth:admin', 'App\Http\Middleware\AuthenticateRole:admin'])-
     Route::delete('/lomba/{id}', [LombaController::class, 'destroy'])->name('admin.lomba.destroy');
     Route::put('/lomba/{id}/start', [LombaController::class, 'startLomba'])->name('admin.lomba.start');
     Route::put('/lomba/{id}/complete', [LombaController::class, 'complete'])->name('admin.lomba.complete');
+    Route::get('/lomba/{id}/detail', [LombaController::class, 'detail'])->name('admin.lomba.detail');
 
     // Monitoring Lomba
     Route::get('/lomba/{id}/monitoring', [LombaController::class, 'monitoring'])->name('admin.lomba.monitoring');

@@ -51,16 +51,27 @@
                                     {{ \Carbon\Carbon::parse($event->waktu_lomba)->format('d M Y H:i') }}</td>
                                 <td class="border border-gray-300 px-4 py-2 text-center w-[250px]">
                                     @if ($isAvailable)
+                                        @php
+                                            $userRoom = $userRooms[$event->id] ?? null; // Ambil room tes user jika ada
+                                        @endphp
+
                                         @if ($event->status === 'in_progress')
-                                            <form action="{{ route('lomba.start', $event->id) }}" method="POST">
-                                                @csrf
-                                                <button type="submit"
-                                                    class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-                                                    Mulai
-                                                </button>
-                                            </form>
+                                            @if ($userRoom && optional($userRoom)->status === 'selesai')
+                                                <a href="{{ route('lomba.detail', $event->id) }}"
+                                                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                                                    Detail
+                                                </a>
+                                            @else
+                                                <form action="{{ route('lomba.start', $event->id) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                                                        Mulai
+                                                    </button>
+                                                </form>
+                                            @endif
                                         @elseif ($event->status === 'completed')
-                                            <a href="#"
+                                            <a href="{{ route('lomba.detail', $event->id) }}"
                                                 class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
                                                 Detail
                                             </a>

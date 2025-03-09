@@ -177,10 +177,37 @@ class LombaController extends Controller
             // Update nilai dan status room_tes untuk setiap peserta
             RoomTes::where('id', $room->id)->update([
                 'status' => 'selesai',
-                'nilai' => $nilai // Jumlah jawaban yang benar langsung disimpan
+                'nilai' => $nilai, // Jumlah jawaban yang benar langsung disimpan
+                'waktu_selesai' => Carbon::now()
             ]);
         }
 
         return redirect()->route('admin.lomba')->with('success', 'Lomba telah berhasil diselesaikan, semua room ujian telah diperiksa dan dinilai.');
+    }
+
+    public function detail($id, Request $request)
+    {
+        $lomba = Lomba::findOrFail($id);
+
+        // Ambil soal dari tabel soal yang memiliki id_lomba yang sesuai
+        $soalData = Soal::where('id_lomba', $id)->first();
+        $soalLomba = $soalData ? $soalData->soal : []; // Pastikan soal berbentuk array
+
+        // Query RoomTes berdasarkan lomba
+        $query = RoomTes::where('id_lomba', $id)
+            ->with('siswa') // Ambil relasi ke siswa
+            ->orderBy('nilai', $request->get('sort_nilai') && $request->get('sort_nilai') !== "" ? $request->get('sort_nilai') : "desc"); // Default sorting: terbesar
+
+        // Filter berdasarkan nama peserta
+        if ($request->filled('nama')) {
+            $query->whereHas('siswa', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->nama . '%');
+            });
+        }
+
+        // Ambil peserta dengan pagination
+        $peserta = $query->paginate(10);
+
+        return view('dashboard.admin.lomba.detail', compact('lomba', 'peserta', 'soalLomba'));
     }
 }

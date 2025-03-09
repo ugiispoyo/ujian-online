@@ -15,3 +15,4 @@ Route::prefix('soal')->group(function () {
 
 Route::get('/room-tes/{id}', [RoomTesController::class, 'getSoal'])->name('api.room-tes.getSoal');
 Route::post('/room-tes/{id}/update-jawaban', [RoomTesController::class, 'updateJawaban']);
+Route::post('/room-tes/{id}/submit', [RoomTesController::class, 'submitJawaban']);

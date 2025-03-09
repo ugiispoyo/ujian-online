@@ -68,7 +68,8 @@
                                                 <button class="text-green-500 hover:underline">Mulai</button>
                                             </form>
                                         @else
-                                            <p class="text-red-500">Belum bisa mulai, belum ada soal untuk lomba ini, input soal terlebih dahulu!</p>
+                                            <p class="text-red-500">Belum bisa mulai, belum ada soal untuk lomba ini, input
+                                                soal terlebih dahulu!</p>
                                         @endif
                                     @endif
 
@@ -96,6 +97,12 @@
                                         <button onclick="showModal('{{ $lomba->id }}')"
                                             class="text-red-500 hover:underline">Hapus</button>
                                     @endif
+
+                                    @if ($lomba->status === 'completed')
+                                        <a href="{{ route('admin.lomba.detail', $lomba->id) }}"
+                                            class="text-blue-500 hover:underline">Detail</a>
+                                    @endif
+
                                 </div>
                             </td>
                         </tr>

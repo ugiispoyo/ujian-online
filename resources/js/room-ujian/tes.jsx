@@ -97,8 +97,29 @@ const Tes = () => {
             return;
         }
 
-        saveJawabanToServer(jawaban);
-        alert("Jawaban berhasil dikirim");
+        if (!jawaban[soalList[currentIndex].id]) {
+            setErrorMessage("Silakan pilih jawaban sebelum mengumpulkan.");
+            return;
+        }
+
+        const jawabanArray = Object.keys(jawaban).map((id) => {
+            const soal = soalList.find((s) => s.id === id);
+            return {
+                id: id,
+                pertanyaan: soal ? soal.pertanyaan : "",
+                jawaban_di_pilih: jawaban[id],
+            };
+        });
+
+        axios
+            .post(`/api/room-tes/${roomId}/submit`, {
+                jawaban: jawabanArray,
+            })
+            .then(() => {
+                alert("Jawaban berhasil dikirim");
+                window.location.href = `/ujian-selesai/${roomId}`;
+            })
+            .catch((error) => console.error("Gagal menyimpan jawaban:", error));
     };
 
     // Function untuk menjalankan countdown berdasarkan waktu lomba + durasi
@@ -132,7 +153,7 @@ const Tes = () => {
     if (loading) return <p>Loading...</p>;
 
     // Jika ujian sudah selesai, redirect user
-    if (roomStatus === "completed") {
+    if (roomStatus === "selesai") {
         window.location.href = `/ujian-selesai/${roomId}`;
         return null;
     }

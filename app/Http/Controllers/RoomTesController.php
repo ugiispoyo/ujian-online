@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\RoomTes;
 use Illuminate\Support\Facades\Auth;
@@ -78,6 +79,9 @@ class RoomTesController extends Controller
             unset($soal['jawaban_yang_benar']);
         }
 
+        // Sembunyikan kolom "nilai" dari response room
+        $room->makeHidden(['nilai']);
+
         return response()->json([
             'room' => $room,
             'soal' => $soalList,
@@ -96,5 +100,64 @@ class RoomTesController extends Controller
         ]);
 
         return response()->json(['message' => 'Jawaban berhasil diperbarui']);
+    }
+
+
+    public function submitJawaban(Request $request, $roomId)
+    {
+        $room = RoomTes::findOrFail($roomId);
+
+        if ($room->status === 'selesai') {
+            return response()->json(['message' => 'Ujian sudah selesai dan tidak dapat dikumpulkan lagi.'], 400);
+        }
+
+        // Ambil soal yang terkait dengan lomba ini
+        $soalData = Soal::where('id_lomba', $room->id_lomba)->first();
+
+        if (!$soalData || empty($soalData->soal)) {
+            return response()->json(['message' => 'Soal tidak ditemukan.'], 400);
+        }
+
+        // Konversi soal ke array
+        $soalLomba = is_string($soalData->soal) ? json_decode($soalData->soal, true) : $soalData->soal;
+        if (!is_array($soalLomba)) {
+            $soalLomba = [];
+        }
+
+        // Buat mapping soal berdasarkan ID
+        $soalMap = [];
+        foreach ($soalLomba as $soal) {
+            if (isset($soal['id'], $soal['jawaban_yang_benar'])) {
+                $soalMap[$soal['id']] = $soal['jawaban_yang_benar'];
+            }
+        }
+
+        // Ambil jawaban siswa
+        $jawabanSiswa = $request->input('jawaban', []);
+
+        $nilai = 0;
+        $soalTerjawab = [];
+
+        foreach ($jawabanSiswa as $jawaban) {
+            if (isset($jawaban['id'], $jawaban['jawaban_di_pilih']) && isset($soalMap[$jawaban['id']])) {
+                $soalTerjawab[] = $jawaban;
+                if ($jawaban['jawaban_di_pilih'] === $soalMap[$jawaban['id']]) {
+                    $nilai += 1; // Tambah nilai jika jawaban benar
+                }
+            }
+        }
+
+        // Simpan jawaban yang dikumpulkan
+        $room->update([
+            'status' => 'selesai',
+            'soal_terjawab' => $soalTerjawab,
+            'nilai' => $nilai,
+            'waktu_selesai' => Carbon::now(),
+        ]);
+
+        return response()->json([
+            'message' => 'Jawaban berhasil dikumpulkan',
+            'nilai' => $nilai,
+        ]);
     }
 }

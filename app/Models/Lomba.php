@@ -54,4 +54,9 @@ class Lomba extends Model
     {
         return is_array($this->soal->soal) ? count($this->soal->soal) : count(json_decode($this->soal->soal, true));
     }
+
+    public function roomTes()
+    {
+        return $this->hasMany(RoomTes::class, 'id_lomba', 'id');
+    }
 }
