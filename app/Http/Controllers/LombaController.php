@@ -6,7 +6,9 @@ use Carbon\Carbon;
 use App\Models\Lomba;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use App\Models\RoomTes;
+use App\Models\Soal;
 
 class LombaController extends Controller
 {
@@ -129,43 +131,53 @@ class LombaController extends Controller
         // Update status lomba menjadi completed
         $lomba->update(['status' => 'completed']);
 
+        // Ambil soal dari tabel soal yang memiliki id_lomba yang sesuai
+        $soalData = Soal::where('id_lomba', $id)->first();
+
+        if (!$soalData || empty($soalData->soal)) {
+            return redirect()->route('admin.lomba')->with('error', 'Tidak ada soal untuk lomba ini.');
+        }
+
+        // Pastikan soal disimpan sebagai array
+        $soalLomba = is_array($soalData->soal) ? $soalData->soal : [];
+
+        // Buat mapping soal berdasarkan ID untuk pencocokan lebih cepat
+        $soalMap = [];
+        foreach ($soalLomba as $soal) {
+            if (isset($soal['id'], $soal['jawaban_yang_benar'])) {
+                $soalMap[$soal['id']] = $soal['jawaban_yang_benar'];
+            }
+        }
+
         // Ambil semua room_tes yang terkait dengan lomba ini
         $rooms = RoomTes::where('id_lomba', $id)->get();
 
         foreach ($rooms as $room) {
-            $soalTerjawab = $room->soal_terjawab ?? [];
-            $soalLomba = $lomba->soal ?? [];
+            // Ambil soal yang sudah dijawab
+            $soalTerjawab = is_array($room->soal_terjawab) ? $room->soal_terjawab : json_decode($room->soal_terjawab, true);
 
-            $nilai = 0;
-            $totalSoal = count($soalLomba);
-
-            if ($totalSoal > 0) {
-                // Buat mapping soal berdasarkan ID agar pencocokan lebih cepat
-                $soalMap = [];
-                foreach ($soalLomba as $soal) {
-                    $soalMap[$soal['id']] = $soal['jawaban_yang_benar'] ?? null;
-                }
-
-                // Cek jawaban peserta
-                foreach ($soalTerjawab as $jawaban) {
-                    if (isset($soalMap[$jawaban['id']])) {
-                        $jawabanBenar = $soalMap[$jawaban['id']];
-                        if (isset($jawaban['jawaban_di_pilih']) && $jawaban['jawaban_di_pilih'] === $jawabanBenar) {
-                            $nilai += 1; // Tambahkan nilai jika jawaban benar
-                        }
-                    }
-                }
-
-                // Hitung nilai akhir berdasarkan jumlah benar
-                $skorAkhir = round(($nilai / $totalSoal) * 100, 2);
-            } else {
-                $skorAkhir = 0;
+            if (!is_array($soalTerjawab)) {
+                $soalTerjawab = [];
             }
 
-            // Update nilai dan status room_tes
-            $room->update([
+            $nilai = 0; // Reset nilai setiap peserta
+
+            // Cek jawaban peserta berdasarkan ID soal
+            foreach ($soalTerjawab as $jawaban) {
+                if (isset($jawaban['id'], $jawaban['jawaban_di_pilih']) && isset($soalMap[$jawaban['id']])) {
+                    if ($jawaban['jawaban_di_pilih'] === $soalMap[$jawaban['id']]) {
+                        $nilai += 1; // Tambah nilai jika jawaban benar
+                    }
+                }
+            }
+
+            // Debugging log untuk memastikan nilai tersimpan
+            Log::info("Nilai untuk siswa {$room->id_siswa} : {$nilai}");
+
+            // Update nilai dan status room_tes untuk setiap peserta
+            RoomTes::where('id', $room->id)->update([
                 'status' => 'selesai',
-                'nilai' => $skorAkhir
+                'nilai' => $nilai // Jumlah jawaban yang benar langsung disimpan
             ]);
         }
 
