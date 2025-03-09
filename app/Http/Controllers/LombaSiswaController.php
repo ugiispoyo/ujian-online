@@ -6,6 +6,10 @@ use App\Models\Lomba;
 use App\Models\RoomTes;
 use App\Models\Soal;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Models\Sertifikat;
+
+use Intervention\Image\ImageManager;
 
 class LombaSiswaController extends Controller
 {
@@ -64,6 +68,52 @@ class LombaSiswaController extends Controller
         $soalLomba = is_string($soalData->soal) ? json_decode($soalData->soal, true) : $soalData->soal;
         $soalTerjawab = is_string($userRoom->soal_terjawab) ? json_decode($userRoom->soal_terjawab, true) : $userRoom->soal_terjawab;
 
-        return view('dashboard.detail-event', compact('lomba', 'soalLomba', 'soalTerjawab'));
+        return view('dashboard.detail-event', compact('lomba', 'soalLomba', 'soalTerjawab', 'userRoom'));
+    }
+
+
+    public function downloadSertifikat($id)
+    {
+        $sertifikat = Sertifikat::findOrFail($id);
+        $siswa = User::find($sertifikat->id_siswa);
+        $lomba = Lomba::find($sertifikat->id_lomba);
+
+        // Background sertifikat
+        $manager = new ImageManager(['driver' => 'gd']); // Pilih driver 'gd' atau 'imagick'
+        $img = $manager->make(public_path('images/bg-sertifikat.jpg'))->resize(600, 400);
+        $img->save(public_path('images/resized-sample.jpg'));
+
+        // Tambahkan teks ke sertifikat
+        // Nama Lomba - Posisikan di tengah atas
+        $img->text($lomba->nama_lomba, 300, 80, function ($font) {
+            $font->size(60); // Ukuran teks lebih besar
+            $font->color('#000');
+            $font->align('center');
+            $font->valign('middle');
+        });
+
+        // Nama Siswa - Posisikan di tengah gambar
+        $img->text($siswa->name, 300, 200, function ($font) {
+            $font->size(70); // Lebih besar untuk nama siswa
+            $font->color('#000');
+            $font->align('center');
+            $font->valign('middle');
+        });
+
+        // Waktu Lomba - Posisikan di bawah nama siswa
+        $img->text('Waktu Lomba: ' . \Carbon\Carbon::parse($lomba->waktu_lomba)->format('d M Y H:i'), 300, 320, function ($font) {
+            $font->size(50); // Lebih besar untuk keterbacaan
+            $font->color('#000');
+            $font->align('center');
+            $font->valign('middle');
+        });
+
+
+
+        // Simpan dan download gambar
+        $fileName = "sertifikat_{$siswa->name}.jpg";
+        $img->save(public_path("sertifikat/{$fileName}"));
+
+        return response()->download(public_path("sertifikat/{$fileName}"));
     }
 }

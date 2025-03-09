@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\RoomTes;
 use App\Models\Soal;
+use App\Models\Sertifikat;
 
 class LombaController extends Controller
 {
@@ -209,5 +210,26 @@ class LombaController extends Controller
         $peserta = $query->paginate(10);
 
         return view('dashboard.admin.lomba.detail', compact('lomba', 'peserta', 'soalLomba'));
+    }
+
+    public function generateSertifikat($id)
+    {
+        $lomba = Lomba::findOrFail($id);
+        $rooms = RoomTes::where('id_lomba', $id)->get();
+
+        foreach ($rooms as $room) {
+            // Cek apakah sertifikat sudah dibuat
+            $existingSertifikat = Sertifikat::where('id_room', $room->id)->first();
+            if (!$existingSertifikat) {
+                Sertifikat::create([
+                    'id_lomba' => $id,
+                    'id_room' => $room->id,
+                    'id_siswa' => $room->id_siswa,
+                    'nilai' => $room->nilai,
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.lomba.detail', $id)->with('success', 'Sertifikat berhasil dibuat untuk semua peserta.');
     }
 }

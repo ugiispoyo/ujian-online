@@ -44,6 +44,8 @@ Route::middleware(['auth:web', 'App\Http\Middleware\AuthenticateRole:web'])->gro
     Route::get('/ujian-selesai/{id}', [UjianController::class, 'ujianSelesai'])->name('ujian.selesai');
 
     Route::get('/lomba/{id}/detail', [\App\Http\Controllers\LombaSiswaController::class, 'detail'])->name('lomba.detail');
+
+    Route::get('/lomba/sertifikat/{id}/download', [\App\Http\Controllers\LombaSiswaController::class, 'downloadSertifikat'])->name('lomba.download.sertifikat');
 });
 
 Route::middleware(['auth:admin', 'App\Http\Middleware\AuthenticateRole:admin'])->prefix("admin")->group(function () {
@@ -74,4 +76,6 @@ Route::middleware(['auth:admin', 'App\Http\Middleware\AuthenticateRole:admin'])-
     Route::post('/soal', [SoalController::class, 'store'])->name('admin.soal.store');
     Route::get('/soal', [SoalController::class, 'index'])->name('admin.soal.index');
     Route::get('/soal/edit', [SoalController::class, 'edit'])->name('admin.soal.edit');
+
+    Route::post('/lomba/{id}/generate-sertifikat', [LombaController::class, 'generateSertifikat'])->name('admin.lomba.generate.sertifikat');
 });

@@ -27,6 +27,14 @@
             @endif
         </form>
 
+        <form action="{{ route('admin.lomba.generate.sertifikat', $lomba->id) }}" method="POST">
+            @csrf
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded mt-4 hover:bg-green-600">
+                Generate Sertifikat
+            </button>
+        </form>
+
+
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
