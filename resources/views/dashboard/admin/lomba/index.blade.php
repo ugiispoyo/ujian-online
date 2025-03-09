@@ -61,11 +61,15 @@
                                 <div class="flex w-full flex-col items-start gap-2">
                                     {{-- Tombol "Mulai" hanya muncul jika waktu lomba belum lewat --}}
                                     @if ($lomba->status === 'not_started' && $now->lessThan($waktuLomba))
-                                        <form action="{{ route('admin.lomba.start', $lomba->id) }}" method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <button class="text-green-500 hover:underline">Mulai</button>
-                                        </form>
+                                        @if ($lomba->soal)
+                                            <form action="{{ route('admin.lomba.start', $lomba->id) }}" method="POST">
+                                                @csrf
+                                                @method('PUT')
+                                                <button class="text-green-500 hover:underline">Mulai</button>
+                                            </form>
+                                        @else
+                                            <p class="text-red-500">Belum bisa mulai, belum ada soal untuk lomba ini, input soal terlebih dahulu!</p>
+                                        @endif
                                     @endif
 
                                     {{-- Tombol Monitoring hanya muncul saat lomba sedang berlangsung --}}
@@ -83,11 +87,12 @@
                                     @if (!$now->lessThan($waktuLomba) && $lomba->status === 'not_started')
                                         <span>Waktu lomba sudah lewat
                                             Silahkan <a href="{{ route('admin.lomba.edit', $lomba->id) }}"
-                                                class="text-blue-500 hover:underline underline">Edit</a> tanggal lomba</span>
+                                                class="text-blue-500 hover:underline underline">Edit</a> tanggal
+                                            lomba</span>
                                     @endif
 
                                     {{-- Tombol Hapus hanya muncul jika waktu lomba belum lewat dan pesertanya kurang dari 10 --}}
-                                    @if ($isDeletionAllowed && $now->lessThan($waktuLomba))
+                                    @if ($isDeletionAllowed && $now->lessThan($waktuLomba) && $lomba->status === 'not_started')
                                         <button onclick="showModal('{{ $lomba->id }}')"
                                             class="text-red-500 hover:underline">Hapus</button>
                                     @endif

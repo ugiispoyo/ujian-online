@@ -12,3 +12,7 @@
 ### Seeder 
 `php artisan migrate:fresh --seed`
 `php artisan db:seed`
+
+### Docker PHPMyadmin & Mysql
+`docker-compose down`
+`docker-compose up -d`

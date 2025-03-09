@@ -120,19 +120,55 @@ class LombaController extends Controller
     public function complete($id)
     {
         $lomba = Lomba::findOrFail($id);
-    
+
         // Pastikan lomba sedang berlangsung sebelum bisa diselesaikan
         if ($lomba->status !== 'in_progress') {
             return redirect()->route('admin.lomba')->with('error', 'Lomba tidak bisa diselesaikan karena belum dimulai.');
         }
-    
+
         // Update status lomba menjadi completed
         $lomba->update(['status' => 'completed']);
-    
-        // Update semua room_tes yang terkait dengan lomba ini menjadi selesai
-        RoomTes::where('id_lomba', $id)->update(['status' => 'selesai']);
-    
-        return redirect()->route('admin.lomba')->with('success', 'Lomba telah berhasil diselesaikan dan semua room ujian telah diupdate.');
+
+        // Ambil semua room_tes yang terkait dengan lomba ini
+        $rooms = RoomTes::where('id_lomba', $id)->get();
+
+        foreach ($rooms as $room) {
+            $soalTerjawab = $room->soal_terjawab ?? [];
+            $soalLomba = $lomba->soal ?? [];
+
+            $nilai = 0;
+            $totalSoal = count($soalLomba);
+
+            if ($totalSoal > 0) {
+                // Buat mapping soal berdasarkan ID agar pencocokan lebih cepat
+                $soalMap = [];
+                foreach ($soalLomba as $soal) {
+                    $soalMap[$soal['id']] = $soal['jawaban_yang_benar'] ?? null;
+                }
+
+                // Cek jawaban peserta
+                foreach ($soalTerjawab as $jawaban) {
+                    if (isset($soalMap[$jawaban['id']])) {
+                        $jawabanBenar = $soalMap[$jawaban['id']];
+                        if (isset($jawaban['jawaban_di_pilih']) && $jawaban['jawaban_di_pilih'] === $jawabanBenar) {
+                            $nilai += 1; // Tambahkan nilai jika jawaban benar
+                        }
+                    }
+                }
+
+                // Hitung nilai akhir berdasarkan jumlah benar
+                $skorAkhir = round(($nilai / $totalSoal) * 100, 2);
+            } else {
+                $skorAkhir = 0;
+            }
+
+            // Update nilai dan status room_tes
+            $room->update([
+                'status' => 'selesai',
+                'nilai' => $skorAkhir
+            ]);
+        }
+
+        return redirect()->route('admin.lomba')->with('success', 'Lomba telah berhasil diselesaikan, semua room ujian telah diperiksa dan dinilai.');
     }
-    
 }
