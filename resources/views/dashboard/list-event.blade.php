@@ -76,10 +76,15 @@
                                                 Detail
                                             </a>
                                         @endif
-                                    @else
+                                    @elseif ($event->status !== 'completed')
                                         <button class="px-4 py-2 bg-gray-400 text-white rounded-md cursor-not-allowed"
                                             disabled>
                                             Belum Dimulai
+                                        </button>
+                                    @else
+                                        <button class="px-4 py-2 bg-slate-700 text-white rounded-md cursor-not-allowed"
+                                            disabled>
+                                            Telah Selesai
                                         </button>
                                     @endif
                                 </td>
