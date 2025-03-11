@@ -44,12 +44,12 @@ jobs:
             cd /var/www/ujian-online
 
             # Set ownership ke user web server (biasanya www-data)
-            sudo chown -R www-data:www-data storage bootstrap/cache
+            sudo chown -R www-data:www-data storage bootstrap/cache public/storage
 
             # Set permission yang benar untuk Laravel
-            sudo chmod -R 775 storage bootstrap/cache
+            sudo chmod -R 775 storage bootstrap/cache public/storage
 
-             # Buat ulang symlink storage jika belum ada
+            # Buat ulang symlink storage jika belum ada
             php artisan storage:link || true
 
             # Jalankan perintah Laravel setelah permission benar
