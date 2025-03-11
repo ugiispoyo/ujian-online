@@ -22,7 +22,7 @@ jobs:
       - name: 📦 Install Dependencies
         run: |
           composer install --no-dev --optimize-autoloader
-          npm install
+          npm install --force
           npm run build
 
       - name: 🚀 Deploy ke VPS
