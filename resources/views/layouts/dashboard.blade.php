@@ -55,6 +55,12 @@
                                 Soal
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('admin.users.index') }}"
+                                class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                               List Pengguna
+                            </a>
+                        </li>
                     @elseif (auth()->check())
                         <!-- Menu untuk Siswa -->
                         <li>

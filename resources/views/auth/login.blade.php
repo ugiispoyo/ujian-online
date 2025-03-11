@@ -92,7 +92,6 @@
             signInWithPopup(auth, googleProvider)
                 .then((result) => result.user.getIdToken())
                 .then((idToken) => {
-                    console.log('ID Token:', idToken);
                     fetch('/auth/google/callback', {
                             method: 'POST',
                             headers: {
@@ -105,6 +104,10 @@
                             })
                         })
                         .then(response => {
+                            if (response.status === 403) {
+                                alert('Akun anda telah diblokir, silahkan hubungi admin');
+                                return;
+                            }
                             if (!response.ok) {
                                 alert('Akun anda tidak ditemukan, silahkan registrasi terlebih dahulu');
                                 window.location.href = '/register';

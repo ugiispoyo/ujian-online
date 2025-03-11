@@ -7,6 +7,7 @@ use App\Http\Controllers\LombaController;
 use App\Http\Controllers\SoalController;
 use App\Http\Controllers\RoomTesController;
 use App\Http\Controllers\UjianController;
+use App\Http\Controllers\UserController;
 
 Route::view('/login', 'auth.login')->name('login');
 Route::view('/register', 'auth.register')->name('register');
@@ -78,4 +79,8 @@ Route::middleware(['auth:admin', 'App\Http\Middleware\AuthenticateRole:admin'])-
     Route::get('/soal/edit', [SoalController::class, 'edit'])->name('admin.soal.edit');
 
     Route::post('/lomba/{id}/generate-sertifikat', [LombaController::class, 'generateSertifikat'])->name('admin.lomba.generate.sertifikat');
+
+    // Users
+    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::patch('/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('admin.users.toggleStatus');
 });

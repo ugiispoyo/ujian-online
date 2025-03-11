@@ -26,6 +26,7 @@ class User extends Authenticatable
         'alamat',
         'sekolah',
         'kelas',
+        'status'
     ];
 
     /**

@@ -104,6 +104,7 @@ class AuthController extends Controller
                 return response()->json(["error" => "Email tidak ditemukan, silahkan register terlebih dahulu"], 404);
             }
 
+            // Jika user adalah admin, langsung login
             if ($admin) {
                 Auth::guard('admin')->login($admin);
                 $request->session()->regenerate();
@@ -111,7 +112,14 @@ class AuthController extends Controller
                 return response()->json(["redirect" => "/admin/dashboard"]);
             }
 
+            // Jika user ada, cek apakah statusnya block atau active
             if ($user) {
+                if ($user->status === 'block') {
+                    Log::warning('User diblokir, login ditolak: ' . $user->name);
+                    return response()->json(["error" => "Akun Anda telah diblokir. Silakan hubungi admin."], 403);
+                }
+
+                // Jika user aktif, izinkan login
                 Auth::guard('web')->login($user);
                 $request->session()->regenerate();
                 Log::info('Login berhasil untuk user: ' . $user->name);
@@ -119,7 +127,7 @@ class AuthController extends Controller
             }
         } catch (\Exception $e) {
             Log::error('Gagal memproses login dengan Gmail: ' . $e->getMessage());
-            return response()->json(['all' => 'Gagal memproses login dengan Gmail: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Gagal memproses login dengan Gmail: ' . $e->getMessage()], 500);
         }
     }
 
