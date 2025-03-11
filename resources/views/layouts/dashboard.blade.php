@@ -27,7 +27,7 @@
         <!-- Sidebar -->
         <aside class="bg-gray-800 text-white shadow-md min-h-screen h-full w-full max-w-[20%]">
             <div class="p-6">
-                <h2 class="text-2xl font-semibold">Dashboard test</h2>
+                <h2 class="text-2xl font-semibold">Dashboard</h2>
                 <ul class="mt-6 space-y-2">
                     @if (auth()->guard('admin')->check())
                         <!-- Menu untuk Admin -->
