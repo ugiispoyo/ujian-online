@@ -42,8 +42,20 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /var/www/ujian-online
+
+            # Set ownership ke user web server (biasanya www-data)
+            sudo chown -R www-data:www-data storage bootstrap/cache
+
+            # Set permission yang benar untuk Laravel
+            sudo chmod -R 775 storage bootstrap/cache
+
+            # Jalankan perintah Laravel setelah permission benar
             php artisan migrate --force
             php artisan config:clear
+            php artisan cache:clear
+            php artisan route:clear
+            php artisan view:clear
+            php artisan view:cache
             npm install --force
             npm run build
             pm2 restart vite || pm2 start npm --name "vite" -- run dev
