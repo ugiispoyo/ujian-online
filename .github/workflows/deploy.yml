@@ -44,5 +44,6 @@ jobs:
             cd /var/www/ujian-online
             php artisan migrate --force
             php artisan config:clear
+            npm install --force
             npm run build
-            pm2 restart all || pm2 start npm --name "vite" -- run dev
+            pm2 restart vite || pm2 start npm --name "vite" -- run dev
