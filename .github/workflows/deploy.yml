@@ -49,6 +49,9 @@ jobs:
             # Set permission yang benar untuk Laravel
             sudo chmod -R 775 storage bootstrap/cache
 
+             # Buat ulang symlink storage jika belum ada
+            php artisan storage:link || true
+
             # Jalankan perintah Laravel setelah permission benar
             php artisan migrate --force
             php artisan config:clear
