@@ -102,7 +102,6 @@ class RoomTesController extends Controller
         return response()->json(['message' => 'Jawaban berhasil diperbarui']);
     }
 
-
     public function submitJawaban(Request $request, $roomId)
     {
         $room = RoomTes::findOrFail($roomId);

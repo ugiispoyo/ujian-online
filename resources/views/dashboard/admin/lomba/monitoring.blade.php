@@ -16,6 +16,14 @@
             </form>
         </div>
 
+        <!-- Jitsi Meet Video Call -->
+        {{-- <h2 class="text-lg font-semibold">Monitoring Peserta Online</h2>
+        <div class="border rounded-lg overflow-hidden shadow-lg mb-10">
+            <iframe src="https://meet.jit.si/{{ $lomba->id }}" allow="camera; microphone; fullscreen; display-capture"
+                class="w-full h-[600px]">
+            </iframe>
+        </div> --}}
+
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">

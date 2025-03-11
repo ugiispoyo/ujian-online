@@ -19,6 +19,7 @@
         @vite('resources/css/app.css')
         <script src="{{ asset('node_modules/flowbite/dist/flowbite.min.js') }}" defer></script>
     @endif
+
 </head>
 
 <body class="bg-gray-100 font-sans antialiased">
@@ -67,6 +68,14 @@
                     </div>
                 </div>
             </nav>
+
+            <!-- Jitsi Meet Video Call -->
+            {{-- <div class="border rounded-lg overflow-hidden shadow-lg max-w-[300px] absolute">
+                <iframe src="https://meet.jit.si/{{ $room->id_lomba }}" allow="camera; microphone; fullscreen; display-capture"
+                    class="h-96">
+                </iframe>
+            </div> --}}
+
 
             <!-- Page Content -->
             <main class="p-6 flex-1 overflow-auto">
