@@ -27,6 +27,9 @@
             @endphp
 
             @if ($sertifikat)
+                <div class="mb-4">
+                    <strong>Jawaban yang benar:</strong> {{ $userRoom->nilai }}
+                </div>
                 <div class="block  mb-10">
                     <a href="{{ route('lomba.download.sertifikat', $sertifikat->id) }}"
                         class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
